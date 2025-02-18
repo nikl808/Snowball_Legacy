@@ -12,6 +12,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { DropdownModule } from 'primeng/dropdown'
+import { InputMaskModule } from 'primeng/inputmask';
 
 @NgModule({
   imports: [
@@ -19,14 +21,14 @@ import { InputNumberModule } from 'primeng/inputnumber';
     ButtonModule, DialogModule, ReactiveFormsModule,
     FloatLabelModule, CommonModule, FileUploadModule,
     TextareaModule, ProgressBarModule, BadgeModule, OverlayBadgeModule,
-    InputNumberModule
+    InputNumberModule, DropdownModule, InputMaskModule
   ],
   exports: [
     FormsModule, InputTextModule, MessageModule,
     ButtonModule, DialogModule, ReactiveFormsModule,
     FloatLabelModule, CommonModule, FileUploadModule,
     TextareaModule, ProgressBarModule, BadgeModule, OverlayBadgeModule,
-    InputNumberModule
+    InputNumberModule, DropdownModule, InputMaskModule
   ],
   providers: []
 })

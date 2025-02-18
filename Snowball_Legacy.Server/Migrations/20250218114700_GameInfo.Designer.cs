@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Snowball_Legacy.Server.Contexts;
@@ -11,9 +12,11 @@ using Snowball_Legacy.Server.Contexts;
 namespace Snowball_Legacy.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250218114700_GameInfo")]
+    partial class GameInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,15 +86,20 @@ namespace Snowball_Legacy.Server.Migrations
                     b.Property<DateOnly>("ReleaseDate")
                         .HasColumnType("date");
 
+                    b.Property<int?>("TitlePictureId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GameId")
                         .IsUnique();
 
+                    b.HasIndex("TitlePictureId");
+
                     b.ToTable("GameInfo");
                 });
 
-            modelBuilder.Entity("Snowball_Legacy.Server.Models.GameScreenshots", b =>
+            modelBuilder.Entity("Snowball_Legacy.Server.Models.GamePicture", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +107,7 @@ namespace Snowball_Legacy.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("GameInfoId")
+                    b.Property<int?>("GameInfoId")
                         .HasColumnType("integer");
 
                     b.Property<byte[]>("Picture")
@@ -109,29 +117,7 @@ namespace Snowball_Legacy.Server.Migrations
 
                     b.HasIndex("GameInfoId");
 
-                    b.ToTable("GameScreenshot");
-                });
-
-            modelBuilder.Entity("Snowball_Legacy.Server.Models.GameTitlePicture", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GameInfoId")
-                        .HasColumnType("integer");
-
-                    b.Property<byte[]>("Picture")
-                        .HasColumnType("bytea");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameInfoId")
-                        .IsUnique();
-
-                    b.ToTable("GameTitlePicture");
+                    b.ToTable("GamePicture");
                 });
 
             modelBuilder.Entity("Snowball_Legacy.Server.Models.GameFile", b =>
@@ -153,29 +139,20 @@ namespace Snowball_Legacy.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Snowball_Legacy.Server.Models.GamePicture", "TitlePicture")
+                        .WithMany()
+                        .HasForeignKey("TitlePictureId");
+
                     b.Navigation("Game");
+
+                    b.Navigation("TitlePicture");
                 });
 
-            modelBuilder.Entity("Snowball_Legacy.Server.Models.GameScreenshots", b =>
+            modelBuilder.Entity("Snowball_Legacy.Server.Models.GamePicture", b =>
                 {
-                    b.HasOne("Snowball_Legacy.Server.Models.GameInfo", "GameInfo")
+                    b.HasOne("Snowball_Legacy.Server.Models.GameInfo", null)
                         .WithMany("ScreenShoots")
-                        .HasForeignKey("GameInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GameInfo");
-                });
-
-            modelBuilder.Entity("Snowball_Legacy.Server.Models.GameTitlePicture", b =>
-                {
-                    b.HasOne("Snowball_Legacy.Server.Models.GameInfo", "GameInfo")
-                        .WithOne("TitlePicture")
-                        .HasForeignKey("Snowball_Legacy.Server.Models.GameTitlePicture", "GameInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GameInfo");
+                        .HasForeignKey("GameInfoId");
                 });
 
             modelBuilder.Entity("Snowball_Legacy.Server.Models.Game", b =>
@@ -186,8 +163,6 @@ namespace Snowball_Legacy.Server.Migrations
             modelBuilder.Entity("Snowball_Legacy.Server.Models.GameInfo", b =>
                 {
                     b.Navigation("ScreenShoots");
-
-                    b.Navigation("TitlePicture");
                 });
 #pragma warning restore 612, 618
         }

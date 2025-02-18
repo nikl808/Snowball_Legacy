@@ -2,22 +2,26 @@ import { Component, OnInit } from "@angular/core";
 import { ApiDataService } from "../../services/apidata.service";
 import { ImportsModule } from "../../imports";
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AppFileupload } from "../../layout/component/app.fileupload/app.fileupload"
+import { GameVM } from "../../models/viewModels/game.vm";
 
 @Component({
   selector: 'app-add-game',
   templateUrl: './addgame.html',
   standalone: true,
-  imports: [ImportsModule, AppFileupload],
+  imports: [ImportsModule],
 })
 export class AddGame implements OnInit {
-
   addGameForm!: FormGroup;
   showAddDlg: boolean = false;
   submitted: boolean = false;
-  floatValue: any = null;
- 
 
+  genres: string[] = ["Стратегия"];
+  selectedGenre: string = this.genres[0];
+
+  titlePic: File | undefined;
+  screenshots: File[] = [];
+  additionalFiles: File[] = [];
+ 
   get controls() {
     return this.addGameForm.controls;
   }
@@ -26,7 +30,10 @@ export class AddGame implements OnInit {
 
   ngOnInit(): void {
     this.addGameForm = new FormGroup({
-      gameName: new FormControl('', [Validators.required])
+      gameName: new FormControl('', [Validators.required]),
+      gamedescr: new FormControl('', [Validators.required]),
+      releasedate: new FormControl('', [Validators.required]),
+      discnum: new FormControl()
     })
   }
 
@@ -34,11 +41,34 @@ export class AddGame implements OnInit {
     this.showAddDlg = true;
   }
 
+  onSelectedFile(type: string, event: any) {
+    const action: { [key: string]: (Function) } = {
+      "title": () => { this.titlePic = event.currentFiles[0] },
+      "screen": () => { this.screenshots = event.currentFiles },
+      "additional": () => { this.additionalFiles = event.currentFiles },
+    };
+    const actionMethod = action[type];
+    if (actionMethod) actionMethod();
+  }
+
+ 
   addGame() {
     this.submitted = true;
     if (this.controls.invalid) {
       return;
     }
+    let newGame: GameVM = {
+      name: this.addGameForm.value.gameName ?? '',
+      genre: this.selectedGenre,
+      releaseDate: this.addGameForm.value.releasedate,
+      description: this.addGameForm.value.gamedescr ?? '',
+      discNumber: this.addGameForm.value.discnum ?? '',
+      titlePicture: this.titlePic,
+      screenshots: this.screenshots ?? [],
+      additionalFiles: this.additionalFiles ?? [],
+    };
+
+    this.dataService.addGame(newGame);
   }
 
   cancel() {

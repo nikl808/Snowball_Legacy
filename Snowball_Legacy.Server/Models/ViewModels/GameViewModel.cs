@@ -2,10 +2,12 @@
 
 public class GameViewModel
 {
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-    public int? DiskNumber { get; set; }
-    byte[]? TitlePicture { get; set; }
-    List<byte[]>? ScreenShoots { get; set; }
-    List<byte[]>? AdditionalFiles { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Genre { get; set; } = string.Empty;
+    public string ReleaseDate { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public int DiskNumber { get; set; }
+    public List<IFormFile>? TitlePicture { get; set; }
+    public List<IFormFile>? Screenshots { get; set; }
+    public List<IFormFile>? AdditionalFiles { get; set; }
 }

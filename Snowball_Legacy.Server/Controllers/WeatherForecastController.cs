@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Snowball_Legacy.Server.Models.ViewModels;
 
 namespace Snowball_Legacy.Server.Controllers
 {
@@ -28,6 +29,13 @@ namespace Snowball_Legacy.Server.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [HttpPost]
+        public IActionResult AddGame([FromBody] GameViewModel game)
+        {
+            Console.WriteLine("Test");
+            return new OkResult();
         }
     }
 }

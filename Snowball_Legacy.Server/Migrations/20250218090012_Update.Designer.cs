@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Snowball_Legacy.Server.Contexts;
@@ -11,9 +12,11 @@ using Snowball_Legacy.Server.Contexts;
 namespace Snowball_Legacy.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250218090012_Update")]
+    partial class Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,7 +94,7 @@ namespace Snowball_Legacy.Server.Migrations
                     b.ToTable("GameInfo");
                 });
 
-            modelBuilder.Entity("Snowball_Legacy.Server.Models.GameScreenshots", b =>
+            modelBuilder.Entity("Snowball_Legacy.Server.Models.GamePicture", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -100,6 +103,9 @@ namespace Snowball_Legacy.Server.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GameInfoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("GameInfoId1")
                         .HasColumnType("integer");
 
                     b.Property<byte[]>("Picture")
@@ -109,29 +115,10 @@ namespace Snowball_Legacy.Server.Migrations
 
                     b.HasIndex("GameInfoId");
 
-                    b.ToTable("GameScreenshot");
-                });
-
-            modelBuilder.Entity("Snowball_Legacy.Server.Models.GameTitlePicture", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GameInfoId")
-                        .HasColumnType("integer");
-
-                    b.Property<byte[]>("Picture")
-                        .HasColumnType("bytea");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameInfoId")
+                    b.HasIndex("GameInfoId1")
                         .IsUnique();
 
-                    b.ToTable("GameTitlePicture");
+                    b.ToTable("GamePicture");
                 });
 
             modelBuilder.Entity("Snowball_Legacy.Server.Models.GameFile", b =>
@@ -156,7 +143,7 @@ namespace Snowball_Legacy.Server.Migrations
                     b.Navigation("Game");
                 });
 
-            modelBuilder.Entity("Snowball_Legacy.Server.Models.GameScreenshots", b =>
+            modelBuilder.Entity("Snowball_Legacy.Server.Models.GamePicture", b =>
                 {
                     b.HasOne("Snowball_Legacy.Server.Models.GameInfo", "GameInfo")
                         .WithMany("ScreenShoots")
@@ -164,16 +151,9 @@ namespace Snowball_Legacy.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("GameInfo");
-                });
-
-            modelBuilder.Entity("Snowball_Legacy.Server.Models.GameTitlePicture", b =>
-                {
-                    b.HasOne("Snowball_Legacy.Server.Models.GameInfo", "GameInfo")
+                    b.HasOne("Snowball_Legacy.Server.Models.GameInfo", null)
                         .WithOne("TitlePicture")
-                        .HasForeignKey("Snowball_Legacy.Server.Models.GameTitlePicture", "GameInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Snowball_Legacy.Server.Models.GamePicture", "GameInfoId1");
 
                     b.Navigation("GameInfo");
                 });
