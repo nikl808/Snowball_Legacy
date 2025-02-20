@@ -14,6 +14,8 @@ import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown'
 import { InputMaskModule } from 'primeng/inputmask';
+import { CardModule } from 'primeng/card';
+import { ImageModule } from 'primeng/image';
 
 @NgModule({
   imports: [
@@ -21,14 +23,16 @@ import { InputMaskModule } from 'primeng/inputmask';
     ButtonModule, DialogModule, ReactiveFormsModule,
     FloatLabelModule, CommonModule, FileUploadModule,
     TextareaModule, ProgressBarModule, BadgeModule, OverlayBadgeModule,
-    InputNumberModule, DropdownModule, InputMaskModule
+    InputNumberModule, DropdownModule, InputMaskModule, CardModule,
+    ImageModule
   ],
   exports: [
     FormsModule, InputTextModule, MessageModule,
     ButtonModule, DialogModule, ReactiveFormsModule,
     FloatLabelModule, CommonModule, FileUploadModule,
     TextareaModule, ProgressBarModule, BadgeModule, OverlayBadgeModule,
-    InputNumberModule, DropdownModule, InputMaskModule
+    InputNumberModule, DropdownModule, InputMaskModule, CardModule,
+    ImageModule
   ],
   providers: []
 })

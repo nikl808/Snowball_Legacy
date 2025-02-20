@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Snowball_Legacy.Server.Contexts;
 using Snowball_Legacy.Server.Models;
+using Snowball_Legacy.Server.Models.Dtos;
 using Snowball_Legacy.Server.Models.ViewModels;
 
 namespace Snowball_Legacy.Server.Controllers;
@@ -9,8 +11,47 @@ namespace Snowball_Legacy.Server.Controllers;
 [Route("api/[controller]")]
 public class GameController(DataContext context) : ControllerBase
 {
-   
+    [HttpGet("list", Name = "GetGames")]
+    public ActionResult<IList<GameDto>> GetGames() {
+        var games = context.Game.Select(g => new GameDto
+        {
+            Id = g.Id,
+            Name = g.Name
+        }).ToList();
+        return games.Count() > 0 ? Ok(games) : NotFound();
+    }
+
+    [HttpGet("info/{gameId:int}", Name = "GetGameInfo")]
+    public ActionResult<GameInfoDto> GetGameInfo([FromRoute] int gameId)
+    {
+        context.Game.Where(g => g.Id == gameId).Include(i => i.GameInfo).Load();
+        var game = context.Game.FirstOrDefault();
+        if (game is not null && game.GameInfo is not null)
+        {
+            var info = new GameInfoDto()
+            {
+                Id = game.GameInfo.Id,
+                Name = game.Name,
+                Genre = game.GameInfo.Genre,
+                ReleaseDate = game.GameInfo.ReleaseDate,
+                DiskNumber = game.GameInfo.DiskNumber,
+                Description = game.GameInfo.Description
+            };
+            return Ok(info);
+        }
+        return NotFound();
+    }
+
+    [HttpGet("titlePicture/{gameInfoId:int}", Name="GetTitlePicture")]
+    public IActionResult GetTitlePicture([FromRoute] int gameInfoId)
+    {
+        context.GameTitlePicture.Where(g => g.GameInfoId == gameInfoId).Load();
+        var pictures = context.GameTitlePicture.ToList();
+        return pictures[0].Picture is null ? NotFound() : File(pictures[0].Picture, "image/jpeg");
+    }
+
     [HttpPost]
+    [DisableRequestSizeLimit]
     public async Task<IActionResult> AddGame([FromForm] GameViewModel vm)
     {
         var game = new Game { Name = vm.Name };
@@ -23,7 +64,7 @@ public class GameController(DataContext context) : ControllerBase
         };
         game.GameInfo = gameInfo;
 
-        if(vm.TitlePicture is not null)
+        if (vm.TitlePicture is not null)
         {
             var titlePicture = new GameTitlePicture();
             titlePicture.GameInfo = gameInfo;

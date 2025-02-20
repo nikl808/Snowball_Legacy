@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Snowball_Legacy.Server.Contexts;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 

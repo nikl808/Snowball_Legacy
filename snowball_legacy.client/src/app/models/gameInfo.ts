@@ -1,12 +1,11 @@
-import { Game } from "./Game";
+import { Game } from "./game";
 import { GamePicture } from "./gamePicture";
 
 export interface GameInfo {
   id: number;
-  gameId: number;
-  diskNumber?: number;
-  description?: string;
-  game?: Game;
-  titlePicture?: GamePicture;
-  screenShoots?: GamePicture[];
+  name ?: string;
+  genre: string;
+  releaseDate: Date;
+  diskNumber ?: number;
+  description ?: string;
 }
