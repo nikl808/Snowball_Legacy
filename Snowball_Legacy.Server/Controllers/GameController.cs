@@ -4,6 +4,7 @@ using Snowball_Legacy.Server.Contexts;
 using Snowball_Legacy.Server.Models;
 using Snowball_Legacy.Server.Models.Dtos;
 using Snowball_Legacy.Server.Models.ViewModels;
+using System.IO.Compression;
 
 namespace Snowball_Legacy.Server.Controllers;
 
@@ -49,6 +50,43 @@ public class GameController(DataContext context) : ControllerBase
         var pictures = context.GameTitlePicture.ToList();
         return pictures[0].Picture is null ? NotFound() : File(pictures[0].Picture, "image/jpeg");
     }
+
+    [HttpGet("screenshots/{gameInfoId:int}", Name = "GetScreenshots")]
+    public IActionResult GetScreenshots([FromRoute] int gameInfoId)
+    {
+        context.GameScreenshot.Where(g => g.GameInfoId == gameInfoId).Load();
+        using (var ms = new MemoryStream())
+        {
+            using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, true))
+            {
+                var screens = context.GameScreenshot.ToList();
+                if (screens.Count == 0) return NotFound();
+                var random = new Random();
+                screens.ForEach(file =>
+                {
+                    if (file.Picture is not null)
+                    {
+                        var entry = zip.CreateEntry($"screenshot_{random.Next(0, 9)}.jpg");
+                        using (var fs = new MemoryStream(file.Picture))
+                        using (var es = entry.Open())
+                        {
+                            fs.CopyTo(es);
+                        }
+                    }
+                });
+            }
+            return File(ms.ToArray(), "application/zip", "screenshots.zip");
+        }
+    }
+
+    [HttpGet("additionalFiles/{gameId:int}", Name = "GetAdditionalFiles")]
+    public IActionResult GetAdditionalFiles([FromRoute] int gameId)
+    {
+        context.GameFile.Where(g => g.GameId == gameId).Load();
+        var files = context.GameFile.FirstOrDefault();
+        return files is null ? NotFound() : File(files.File, "application/zip", "files.zip");
+    }
+
 
     [HttpPost]
     [DisableRequestSizeLimit]

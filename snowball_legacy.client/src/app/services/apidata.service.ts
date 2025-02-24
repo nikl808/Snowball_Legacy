@@ -34,6 +34,18 @@ export class ApiDataService {
     );
   }
 
+  public getGameScreenshots(gameInfoId: number) {
+    return this.http.get('/api/game/screenshots/' + gameInfoId, { responseType: 'blob' }).pipe(
+      catchError(this.handleError<Blob>('getGameScreenshots unknown files'))
+    );
+  }
+
+  public getAdditionalGameFiles(gameId: string) {
+    return this.http.get('/api/game/additionalFiles/' + gameId, { responseType: 'blob' }).pipe(
+      catchError(this.handleError<Blob>('getAdditionalGamefiles unknown files'))
+    );
+  }
+
   addGame(game: GameVM) {
     const formData = new FormData();
     formData.append('Name', game.name);

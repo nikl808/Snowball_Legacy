@@ -9,8 +9,10 @@
                 <p-image [src]="titlePicture" alt="Image" width="250" height="250" [preview]="true" />
               </td>
               <td style="vertical-align:top">
-                <p class="inlay">Дата выхода: {{gameInfo?.releaseDate}}
-                <br/>Жанр: {{gameInfo?.genre}}
+                <p class="inlay">
+                  Дата выхода: {{gameInfo?.releaseDate}}
+                  <br />Жанр: {{gameInfo?.genre}}
+                  <br />Доп. материалы: <p-button (onClick)="getAdditionalFiles()">Скачать</p-button>
                 </p>
               </td>
             </tr>
@@ -18,8 +20,8 @@
 
           <p>{{gameInfo?.description}}</p>
 
-          <ng-container>
-            <p-image src="https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg" alt="Image" width="250" height="250" [preview]="true" />
+          <ng-container *ngFor="let screen of screenshots">
+            <p-image src="{{'data:image/jpeg;base64,'+ screen}}" alt="Image" width="250" height="250" [preview]="true" />
           </ng-container>
           <br />
         </td>
