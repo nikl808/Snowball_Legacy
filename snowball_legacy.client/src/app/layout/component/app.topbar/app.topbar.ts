@@ -6,11 +6,12 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from '../app.configurator';
 import { LayoutService } from '../../service/layout.service';
 import { AddGame } from '../../../pages/addGame/addgame';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, AddGame],
+  imports: [RouterModule, CommonModule, StyleClassModule, DividerModule, AppConfigurator, AddGame],
   templateUrl: './app.topbar.html'
     
 })
