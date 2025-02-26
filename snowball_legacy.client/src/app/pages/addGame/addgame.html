@@ -1,10 +1,11 @@
 <button type="button" class="layout-topbar-action" (click)="showAddDialog()">
   <i class="pi pi-plus"></i>
 </button>
-<p-dialog header="Add Game" [(visible)]="showAddDlg" [modal]="true" [style]="{ width: '1000px' }">
+<p-dialog header="Add Game" [(visible)]="showAddDlg" [modal]="true" resizable="false" [style]="{ width: '630px' }">
   <form [formGroup]="addGameForm" (ngSubmit)="addGame()">
+    <!--Name-->
     <div class="form-group mb-3">
-      <label class="block text-black-50 font-medium mb-2">Game name</label>
+      <label class="block text-black-50 !font-bold font-medium mb-2">Game name</label>
       <input type="text" pInputText formControlName="gameName" class="form-control w-full md:w-30rem mb-3"
              [ngClass]="{ 'is-invalid': submitted && controls.gameName.errors}" required>
       <div *ngIf="submitted && controls.gameName.errors" class="invalid-feedback">
@@ -13,16 +14,52 @@
         </div>
       </div>
     </div>
+    <!--Developer-->
     <div class="form-group mb-3">
-      <label class="block text-black-50 font-medium mb-2">Release date</label>
-      <p-inputmask class="w-full md:w-30rem mb-3" mask="99.99.9999" placeholder="dd.mm.yyyy" formControlName="releasedate"/>
+      <label class="block text-black-50 !font-bold font-medium mb-2">Developer</label>
+      <input type="text" pInputText formControlName="developer" class="form-control w-full md:w-30rem mb-3"
+             [ngClass]="{ 'is-invalid': submitted && controls.developer.errors}" required>
+      <div *ngIf="submitted && controls.developer.errors" class="invalid-feedback">
+        <div *ngIf="controls.developer.errors?.required">
+          <p-message severity="error" variant="simple" size="small">Email is required</p-message>
+        </div>
+      </div>
     </div>
-    <div class="form-group mb-3">
-      <label class="block text-black-50 font-medium mb-2">Genre</label>
-      <p-dropdown class="w-full md:w-30rem mb-3" appendTo="body" [options]="genres" [(ngModel)]="selectedGenre" />
+
+    <div class="form-group mb-7">
+      <div class="!grid !grid-cols-3 !auto-cols-max !grid-flow-col gap-2">
+        <!--Release date-->
+        <div>
+          <label class="block text-black-50 !font-bold font-medium mb-2">Release date</label>
+          <p-inputmask class="form-control w-full" mask="99.99.9999" placeholder="dd.mm.yyyy" formControlName="releasedate"
+                       [ngClass]="{ 'is-invalid': submitted && controls.releasedate.errors}" required />
+          <div *ngIf="submitted && controls.releasedate.errors" class="invalid-feedback">
+            <div *ngIf="controls.releasedate.errors?.required">
+              <p-message severity="error" variant="simple" size="small">Email is required</p-message>
+            </div>
+          </div>
+        </div>
+        <!--Genre-->
+        <div>
+          <label class="block text-black-50 !font-bold font-medium mb-2">Genre</label>
+          <p-dropdown class="form-control w-full" appendTo="body" [options]="genres" [(ngModel)]="selectedGenre" />
+        </div>
+        <!--Disc num-->
+        <div>
+          <label class="block text-black-50 !font-bold font-medium mb-2">Disc number</label>
+          <p-inputnumber class="form-control w-full" formControlName="discnum"
+                         [ngClass]="{ 'is-invalid': submitted && controls.discnum.errors}" required />
+          <div *ngIf="submitted && controls.discnum.errors" class="invalid-feedback">
+            <div *ngIf="controls.discnum.errors?.required">
+              <p-message severity="error" variant="simple" size="small">Email is required</p-message>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <!--Description-->
     <div class="form-group mb-3">
-      <label class="block text-black-50 font-medium mb-2">Game description</label>
+      <label class="block text-black-50 !font-bold font-medium mb-2">Game description</label>
       <textarea type="text" pTextarea formControlName="gamedescr" class="form-control w-full md:w-30rem mb-3"
                 [ngClass]="{ 'is-invalid': submitted && controls.gamedescr.errors}" required></textarea>
       <div *ngIf="submitted && controls.gamedescr.errors" class="invalid-feedback">
@@ -31,46 +68,39 @@
         </div>
       </div>
     </div>
-    <div class="form-group mb-3">
-      <label class="block text-black-50 font-medium mb-2">Disc number</label>
-      <p-inputnumber formControlName="discnum" class="form-control w-full md:w-30rem mb-3" />
+
+    <div class="mb-3">
+      <div class="!grid !grid-cols-2 !auto-cols-max !grid-flow-col gap-2">
+        <!--Title pic-->
+        <p-panel header="Title picture">
+          <p-fileupload mode="basic" chooseLabel="Choose" chooseIcon="pi pi-upload" name="title[]"
+                        class="w-full md:w-30rem mb-3"
+                        [customUpload]="true" accept="image/*" maxFileSize="10485760" (onSelect)="onSelectedFile('title', $event)" />
+        </p-panel>
+        <!--Additional-->
+        <p-panel header="Additional game files">
+          <p-fileUpload mode="basic" chooseLabel="Choose" chooseIcon="pi pi-upload" name="files[]"
+                        [customUpload]="true" accept="application/*" maxFileSize="209715200"
+                        (onSelect)="onSelectedFile('additional', $event)" />
+        </p-panel>
+      </div>
     </div>
-    <div class="form-group mb-3">
-      <label class="block text-black-50 font-medium mb-2">Title Picture</label>
-      <p-fileupload mode="basic" chooseLabel="Choose" chooseIcon="pi pi-upload" name="title[]"
-                    class="w-full md:w-30rem mb-3"
-                    [customUpload]="true" accept="image/*" maxFileSize="10485760" (onSelect)="onSelectedFile('title', $event)" />
-    </div>
-    <div class="form-group mb-3">
-      <label class="block text-black-50 font-medium mb-2">Screenshots</label>
+    <!--Screenshots-->
+    <div class="mb-3">
+      <label class="block text-black-50 !font-bold font-medium mb-2">Screenshots</label>
       <p-fileUpload name="screens[]"
                     multiple="true"
                     accept="image/*"
                     maxFileSize="10485760"
+                    fileLimit="3"
                     [showUploadButton]="false"
                     [showCancelButton]="false"
-                    (onSelect)="onSelectedFile('screen', $event)">
-      </p-fileUpload>
+                    (onSelect)="onSelectedFile('screen', $event)" />
     </div>
-    <div class="form-group mb-3">
-      <label class="block text-black-50 font-medium mb-2">Additional game files</label>
-      <p-fileUpload name="screens[]"
-                    multiple="true"
-                    maxFileSize="52428800"
-                    [showUploadButton]="false"
-                    [showCancelButton]="false"
-                    (onSelect)="onSelectedFile('additional', $event)">
-      </p-fileUpload>
-    </div>
-    <div class="form-group">
-      <div class="flex justify-content-between">
-        <div class="flex justify-content-start gap-2">
-          <p-button label="Cancel" severity="secondary" (onClick)="cancel()" />
-        </div>
-        <div class="flex justify-content-end gap-2">
-          <p-button type="submit" label="Add" />
-        </div>
-      </div>
+
+    <div class="flex justify-end gap-2 form-group">
+      <p-button label="Cancel" severity="secondary" (onClick)="cancel()" />
+      <p-button type="submit" label="Add" />
     </div>
   </form>
 </p-dialog>

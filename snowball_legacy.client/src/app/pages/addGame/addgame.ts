@@ -31,9 +31,10 @@ export class AddGame implements OnInit {
   ngOnInit(): void {
     this.addGameForm = new FormGroup({
       gameName: new FormControl('', [Validators.required]),
+      developer: new FormControl('', [Validators.required]),
       gamedescr: new FormControl('', [Validators.required]),
       releasedate: new FormControl('', [Validators.required]),
-      discnum: new FormControl()
+      discnum: new FormControl('', [Validators.required])
     })
   }
 
@@ -59,10 +60,12 @@ export class AddGame implements OnInit {
     }
     let newGame: GameVM = {
       name: this.addGameForm.value.gameName ?? '',
+      developer: this.addGameForm.value.developer ?? '',
       genre: this.selectedGenre,
       releaseDate: this.addGameForm.value.releasedate,
       description: this.addGameForm.value.gamedescr ?? '',
       discNumber: this.addGameForm.value.discnum ?? '',
+      isAdditionalFiles: this.additionalFiles.length > 0,
       titlePicture: this.titlePic,
       screenshots: this.screenshots ?? [],
       additionalFiles: this.additionalFiles ?? [],

@@ -16,6 +16,7 @@ import { DropdownModule } from 'primeng/dropdown'
 import { InputMaskModule } from 'primeng/inputmask';
 import { CardModule } from 'primeng/card';
 import { ImageModule } from 'primeng/image';
+import { PanelModule } from 'primeng/panel';
 
 @NgModule({
   imports: [
@@ -24,7 +25,7 @@ import { ImageModule } from 'primeng/image';
     FloatLabelModule, CommonModule, FileUploadModule,
     TextareaModule, ProgressBarModule, BadgeModule, OverlayBadgeModule,
     InputNumberModule, DropdownModule, InputMaskModule, CardModule,
-    ImageModule
+    ImageModule, PanelModule
   ],
   exports: [
     FormsModule, InputTextModule, MessageModule,
@@ -32,7 +33,7 @@ import { ImageModule } from 'primeng/image';
     FloatLabelModule, CommonModule, FileUploadModule,
     TextareaModule, ProgressBarModule, BadgeModule, OverlayBadgeModule,
     InputNumberModule, DropdownModule, InputMaskModule, CardModule,
-    ImageModule
+    ImageModule, PanelModule
   ],
   providers: []
 })

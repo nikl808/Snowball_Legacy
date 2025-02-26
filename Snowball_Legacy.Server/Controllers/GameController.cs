@@ -35,7 +35,7 @@ public class GameController(DataContext context) : ControllerBase
                 Name = game.Name,
                 Genre = game.GameInfo.Genre,
                 ReleaseDate = game.GameInfo.ReleaseDate,
-                DiskNumber = game.GameInfo.DiskNumber,
+                DiscNumber = game.GameInfo.DiskNumber,
                 Description = game.GameInfo.Description
             };
             return Ok(info);
@@ -95,9 +95,11 @@ public class GameController(DataContext context) : ControllerBase
         var game = new Game { Name = vm.Name };
         var gameInfo = new GameInfo {
             Game = game,
+            Developer = vm.Developer,
+            IsAdditionalFiles = vm.IsAdditionalFiles,
             Description = vm.Description,
             Genre = vm.Genre,
-            DiskNumber = vm.DiskNumber,
+            DiskNumber = vm.DiscNumber,
             ReleaseDate = DateOnly.Parse(vm.ReleaseDate)
         };
         game.GameInfo = gameInfo;
@@ -151,8 +153,7 @@ public class GameController(DataContext context) : ControllerBase
             Console.WriteLine(ex.ToString());
             return StatusCode(500, "Internal server error");
         }
-
-        return new OkResult();
+        return Ok("Uploaded");
     }
 
     private async Task<byte[]> FileToByteArrayAsync(IFormFile file)
