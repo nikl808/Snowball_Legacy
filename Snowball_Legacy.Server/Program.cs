@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
 using Snowball_Legacy.Server.Contexts;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,13 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader()
         .AllowCredentials());
 });
+
+//Add Serilog
+builder.Host.UseSerilog((context, configuration) => configuration
+    .WriteTo.Console()
+    .WriteTo.File(Path.Combine(builder.Environment.ContentRootPath, "Logs", $"log-{DateTime.Today.ToShortDateString()}.txt"),
+        rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Error));
 
 var app = builder.Build();
 

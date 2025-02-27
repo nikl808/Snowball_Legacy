@@ -1,39 +1,19 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-
-interface WeatherForecast {
-  date: string;
-  temperatureC: number;
-  temperatureF: number;
-  summary: string;
-}
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, TranslateModule],
   template: `<router-outlet></router-outlet>`
 })
-export class AppComponent implements OnInit {
-  public forecasts: WeatherForecast[] = [];
-
-  constructor(private http: HttpClient) { }
-
-  ngOnInit() {
-    this.getForecasts()
+export class AppComponent {
+  constructor(private config: PrimeNG, private translateService: TranslateService) {
+    this.translateService.addLangs(['ru', 'en']);
+    this.translateService.setDefaultLang('ru');
+    this.translateService.use('ru');
+    this.translateService.get('primeng').subscribe(res => this.config.setTranslation(res));
   }
-
-  getForecasts() {
-    this.http.get<WeatherForecast[]>('/weatherforecast').subscribe(
-      result => {
-        this.forecasts = result
-        console.log(this.forecasts);
-      },
-      error => {
-        console.log(error);
-      }
-    )
-  }
-
 }

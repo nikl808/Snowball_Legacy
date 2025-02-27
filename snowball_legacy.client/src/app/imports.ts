@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from "primeng/button";
 import { DialogModule } from "primeng/dialog";
@@ -20,19 +21,21 @@ import { PanelModule } from 'primeng/panel';
 
 @NgModule({
   imports: [
-    FormsModule, InputTextModule, MessageModule,
-    ButtonModule, DialogModule, ReactiveFormsModule,
-    FloatLabelModule, CommonModule, FileUploadModule,
-    TextareaModule, ProgressBarModule, BadgeModule, OverlayBadgeModule,
-    InputNumberModule, DropdownModule, InputMaskModule, CardModule,
+    TranslateModule, FormsModule, InputTextModule,
+    MessageModule, ButtonModule, DialogModule,
+    ReactiveFormsModule, FloatLabelModule, CommonModule,
+    FileUploadModule, TextareaModule, ProgressBarModule,
+    BadgeModule, OverlayBadgeModule, InputNumberModule,
+    DropdownModule, InputMaskModule, CardModule,
     ImageModule, PanelModule
   ],
   exports: [
-    FormsModule, InputTextModule, MessageModule,
-    ButtonModule, DialogModule, ReactiveFormsModule,
-    FloatLabelModule, CommonModule, FileUploadModule,
-    TextareaModule, ProgressBarModule, BadgeModule, OverlayBadgeModule,
-    InputNumberModule, DropdownModule, InputMaskModule, CardModule,
+    TranslateModule, FormsModule, InputTextModule,
+    MessageModule, ButtonModule, DialogModule,
+    ReactiveFormsModule, FloatLabelModule, CommonModule,
+    FileUploadModule, TextareaModule, ProgressBarModule,
+    BadgeModule, OverlayBadgeModule, InputNumberModule,
+    DropdownModule, InputMaskModule, CardModule,
     ImageModule, PanelModule
   ],
   providers: []

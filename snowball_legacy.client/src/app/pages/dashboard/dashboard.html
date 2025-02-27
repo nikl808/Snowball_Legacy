@@ -11,15 +11,15 @@
             <div class="!row-span-5">
               <p-image [src]="titlePicture" alt="Image" width="200" [preview]="true" />
             </div>
-            <div class="!font-bold">Разработчик: {{gameInfo?.developer}}</div>
-            <div class="!font-bold">Дата выхода: {{gameInfo?.releaseDate}}</div>
-            <div class="!font-bold">Жанр: {{gameInfo?.genre}}</div>
-            <div class="!font-bold">Номер диска: {{gameInfo?.discNumber}}</div>
-            <div class="!font-bold">Дополнительные материалы: <p-button icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" /></div>
+            <div class="!font-bold">{{'common.developer' | translate}}: {{gameInfo?.developer}}</div>
+            <div class="!font-bold">{{'common.releaseDate' | translate}}: {{gameInfo?.releaseDate}}</div>
+            <div class="!font-bold">{{'common.genre' | translate}}: {{gameInfo?.genre}}</div>
+            <div class="!font-bold">{{'common.discNum' | translate}}: {{gameInfo?.discNumber}}</div>
+            <div class="!font-bold">{{'common.additionalGameFiles' | translate}}: <p-button icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" /></div>
           </div>
-          <div class="!font-bold !text-xl mb-3">Описание:</div>
+          <div class="!font-bold !text-xl mb-3">{{'common.gameDescription' | translate}}:</div>
           <p class="!text-lg">{{gameInfo?.description}}</p>
-          <div class="!font-bold !text-xl !text-center mb-3">Скриншоты:</div>
+          <div class="!font-bold !text-xl !text-center mb-3">{{'common.screenshots' | translate}}:</div>
           <div class="!flex !flex-row !justify-center !content-center !gap-3">
             <ng-container *ngFor="let screen of screenshots">
               <p-image src="{{'data:image/jpeg;base64,'+ screen}}" alt="Image" width="200" [preview]="true" />

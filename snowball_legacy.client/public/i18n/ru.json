@@ -1,0 +1,21 @@
+{
+  "common": {
+    "addGame": "Добавление игры",
+    "gameName": "Название игры",
+    "developer": "Разработчик",
+    "releaseDate": "Дата выхода",
+    "genre": "Жанр",
+    "discNum": "Номер диска",
+    "gameDescription": "Описание",
+    "titlePicture": "Обложка",
+    "additionalGameFiles": "Доп. материалы",
+    "screenshots": "Скриншоты",
+    "cancel": "Отмена",
+    "add": "Добавить",
+    "required": "Это поле обязательно"
+  },
+  "primeng": {
+    "choose": "Выбрать...",
+    "upload":  "Загрузить"
+  }
+}

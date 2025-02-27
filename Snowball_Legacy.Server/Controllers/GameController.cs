@@ -10,81 +10,123 @@ namespace Snowball_Legacy.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GameController(DataContext context) : ControllerBase
+public class GameController(
+    DataContext context,
+    ILogger<GameController> logger) : ControllerBase
 {
     [HttpGet("list", Name = "GetGames")]
     public ActionResult<IList<GameDto>> GetGames() {
-        var games = context.Game.Select(g => new GameDto
+        try
         {
-            Id = g.Id,
-            Name = g.Name
-        }).ToList();
-        return games.Count() > 0 ? Ok(games) : NotFound();
+            var games = context.Game.Select(g => new GameDto
+            {
+                Id = g.Id,
+                Name = g.Name
+            }).ToList();
+            return games.Count() > 0 ? Ok(games) : NotFound();
+        }
+        catch (Exception e)
+        {
+            logger.LogError("Error when receiving game list", e);
+        }
+        return BadRequest();
     }
 
     [HttpGet("info/{gameId:int}", Name = "GetGameInfo")]
     public ActionResult<GameInfoDto> GetGameInfo([FromRoute] int gameId)
     {
-        context.Game.Where(g => g.Id == gameId).Include(i => i.GameInfo).Load();
-        var game = context.Game.FirstOrDefault();
-        if (game is not null && game.GameInfo is not null)
+        try
         {
-            var info = new GameInfoDto()
+            context.Game.Where(g => g.Id == gameId).Include(i => i.GameInfo).Load();
+            var game = context.Game.FirstOrDefault();
+            if (game is not null && game.GameInfo is not null)
             {
-                Id = game.GameInfo.Id,
-                Name = game.Name,
-                Genre = game.GameInfo.Genre,
-                ReleaseDate = game.GameInfo.ReleaseDate,
-                DiscNumber = game.GameInfo.DiskNumber,
-                Description = game.GameInfo.Description
-            };
-            return Ok(info);
+                var info = new GameInfoDto()
+                {
+                    Id = game.GameInfo.Id,
+                    Name = game.Name,
+                    Genre = game.GameInfo.Genre,
+                    ReleaseDate = game.GameInfo.ReleaseDate,
+                    DiscNumber = game.GameInfo.DiskNumber,
+                    Description = game.GameInfo.Description
+                };
+                return Ok(info);
+            }
+            return NotFound();
         }
-        return NotFound();
+        catch (Exception e)
+        {
+            logger.LogError("Error when receiving game info", e);
+        }
+        return BadRequest();
     }
 
     [HttpGet("titlePicture/{gameInfoId:int}", Name="GetTitlePicture")]
     public IActionResult GetTitlePicture([FromRoute] int gameInfoId)
     {
-        context.GameTitlePicture.Where(g => g.GameInfoId == gameInfoId).Load();
-        var pictures = context.GameTitlePicture.ToList();
-        return pictures[0].Picture is null ? NotFound() : File(pictures[0].Picture, "image/jpeg");
+        try
+        {
+            context.GameTitlePicture.Where(g => g.GameInfoId == gameInfoId).Load();
+            var pictures = context.GameTitlePicture.ToList();
+            return pictures[0].Picture is null ? NotFound() : File(pictures[0].Picture, "image/jpeg");
+        }
+        catch(Exception e)
+        {
+            logger.LogError("Error when receiving title picture", e);
+        }
+        return BadRequest();
     }
 
     [HttpGet("screenshots/{gameInfoId:int}", Name = "GetScreenshots")]
     public IActionResult GetScreenshots([FromRoute] int gameInfoId)
     {
-        context.GameScreenshot.Where(g => g.GameInfoId == gameInfoId).Load();
-        using (var ms = new MemoryStream())
+        try
         {
-            using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, true))
+            context.GameScreenshot.Where(g => g.GameInfoId == gameInfoId).Load();
+            using (var ms = new MemoryStream())
             {
-                var screens = context.GameScreenshot.ToList();
-                if (screens.Count == 0) return NotFound();
-                var random = new Random();
-                screens.ForEach(file =>
+                using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, true))
                 {
-                    if (file.Picture is not null)
+                    var screens = context.GameScreenshot.ToList();
+                    if (screens.Count == 0) return NotFound();
+                    var random = new Random();
+                    screens.ForEach(file =>
                     {
-                        var entry = zip.CreateEntry($"screenshot_{random.Next(0, 9)}.jpg");
-                        using (var fs = new MemoryStream(file.Picture))
-                        using (var es = entry.Open())
+                        if (file.Picture is not null)
                         {
-                            fs.CopyTo(es);
+                            var entry = zip.CreateEntry($"screenshot_{random.Next(0, 9)}.jpg");
+                            using (var fs = new MemoryStream(file.Picture))
+                            using (var es = entry.Open())
+                            {
+                                fs.CopyTo(es);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                return File(ms.ToArray(), "application/zip", "screenshots.zip");
             }
-            return File(ms.ToArray(), "application/zip", "screenshots.zip");
         }
+        catch(Exception e)
+        {
+            logger.LogError("Error when receiving screenshots", e);
+        }
+        return BadRequest();
     }
 
     [HttpGet("additionalFiles/{gameId:int}", Name = "GetAdditionalFiles")]
     public IActionResult GetAdditionalFiles([FromRoute] int gameId)
     {
-        context.GameFile.Where(g => g.GameId == gameId).Load();
-        var files = context.GameFile.FirstOrDefault();
-        return files is null ? NotFound() : File(files.File, "application/zip", "files.zip");
+        try
+        {
+            context.GameFile.Where(g => g.GameId == gameId).Load();
+            var files = context.GameFile.FirstOrDefault();
+            return files is null ? NotFound() : File(files.File, "application/zip", "files.zip");
+        }
+        catch(Exception e)
+        {
+            logger.LogError("Error when receiving files", e);
+        }
+        return BadRequest();
     }
 
 
@@ -150,7 +192,7 @@ public class GameController(DataContext context) : ControllerBase
             context.SaveChanges();
         }
         catch (Exception ex) {
-            Console.WriteLine(ex.ToString());
+            logger.LogError("Game addition error", ex);
             return StatusCode(500, "Internal server error");
         }
         return Ok("Uploaded");
