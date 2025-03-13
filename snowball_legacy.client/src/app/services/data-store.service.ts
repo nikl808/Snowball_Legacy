@@ -7,5 +7,5 @@ import { Subject } from 'rxjs';
 export class DataStoreService {
   public readonly _activeGameSubject = new Subject<string>();
 
-  public activeGameSubjectChanges$ = this._activeGameSubject.asObservable()
+  public activeGameSubjectChanges$ = this._activeGameSubject.asObservable();
 }

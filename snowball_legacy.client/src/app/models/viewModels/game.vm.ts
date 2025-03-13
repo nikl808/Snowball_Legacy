@@ -1,4 +1,5 @@
 export interface GameVM {
+  id: string;
   name: string;
   developer: string;
   genre: string;

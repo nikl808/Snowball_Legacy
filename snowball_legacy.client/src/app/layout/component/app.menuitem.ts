@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { RippleModule } from 'primeng/ripple';
 import { MenuItem } from 'primeng/api';
 import { LayoutService } from '../service/layout.service';
-import { DataStoreService } from '../../services/datastore.service';
+import { DataStoreService } from '../../services/data-store.service';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -68,7 +68,7 @@ import { DataStoreService } from '../../services/datastore.service';
             transition('collapsed <=> expanded', animate('400ms cubic-bezier(0.86, 0, 0.07, 1)'))
         ])
     ],
-    providers: [LayoutService]
+  providers: [LayoutService]
 })
 export class AppMenuitem {
   @Input() item!: MenuItem;

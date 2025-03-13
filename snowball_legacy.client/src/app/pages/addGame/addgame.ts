@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ApiDataService } from "../../services/apidata.service";
+import { ApiDataService } from "../../services/api-data.service";
 import { ImportsModule } from "../../imports";
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { GameVM } from "../../models/viewModels/game.vm";
@@ -26,7 +26,7 @@ export class AddGame implements OnInit {
     return this.addGameForm.controls;
   }
 
-  constructor(private dataService: ApiDataService) { }
+  constructor(private apiData: ApiDataService) { }
 
   ngOnInit(): void {
     this.addGameForm = new FormGroup({
@@ -59,6 +59,7 @@ export class AddGame implements OnInit {
       return;
     }
     let newGame: GameVM = {
+      id: '',
       name: this.addGameForm.value.gameName ?? '',
       developer: this.addGameForm.value.developer ?? '',
       genre: this.selectedGenre,
@@ -71,7 +72,7 @@ export class AddGame implements OnInit {
       additionalFiles: this.additionalFiles ?? [],
     };
 
-    this.dataService.addGame(newGame);
+    this.apiData.addGame(newGame);
   }
 
   cancel() {

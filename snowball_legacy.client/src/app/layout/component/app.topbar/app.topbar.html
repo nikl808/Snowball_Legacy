@@ -12,10 +12,9 @@
     <p-divider layout="vertical"></p-divider>
     <div class="layout-topbar-menu-content">
       <app-add-game />
-      <button type="button" class="layout-topbar-action">
-        <i class="pi pi-pen-to-square"></i>
-      </button>
-      <button type="button" class="layout-topbar-action">
+      <app-edit-game [gameId]="currentGameId"/>
+      <p-confirmdialog/>
+      <button type="button" (click)="deleteGame($event)" class="layout-topbar-action">
         <i class="pi pi-trash"></i>
       </button>
     </div>

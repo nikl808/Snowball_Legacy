@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ImportsModule } from "../../imports";
-import { DataStoreService } from '../../services/datastore.service';
-import { ApiDataService } from '../../services/apidata.service';
+import { DataStoreService } from '../../services/data-store.service';
+import { ApiDataService } from '../../services/api-data.service';
 import { GameInfo } from '../../models/gameInfo';
 import JSZip from 'jszip';
 import fs from 'file-saver';

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ImportsModule } from "../../../imports";
 import { MenuItem } from 'primeng/api';
-import { ApiDataService } from '../../../services/apidata.service';
+import { ApiDataService } from '../../../services/api-data.service';
 import { AppMenuitem } from './../app.menuitem';
 
 @Component({

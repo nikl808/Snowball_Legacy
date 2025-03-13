@@ -18,6 +18,8 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { CardModule } from 'primeng/card';
 import { ImageModule } from 'primeng/image';
 import { PanelModule } from 'primeng/panel';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from "primeng/api";
 
 @NgModule({
   imports: [
@@ -27,7 +29,7 @@ import { PanelModule } from 'primeng/panel';
     FileUploadModule, TextareaModule, ProgressBarModule,
     BadgeModule, OverlayBadgeModule, InputNumberModule,
     DropdownModule, InputMaskModule, CardModule,
-    ImageModule, PanelModule
+    ImageModule, PanelModule, ToastModule
   ],
   exports: [
     TranslateModule, FormsModule, InputTextModule,
@@ -36,8 +38,8 @@ import { PanelModule } from 'primeng/panel';
     FileUploadModule, TextareaModule, ProgressBarModule,
     BadgeModule, OverlayBadgeModule, InputNumberModule,
     DropdownModule, InputMaskModule, CardModule,
-    ImageModule, PanelModule
+    ImageModule, PanelModule, ToastModule
   ],
-  providers: []
+  providers: [MessageService]
 })
 export class ImportsModule { }

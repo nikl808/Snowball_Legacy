@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core'
 import { GameVM } from '../models/viewModels/game.vm';
 import { Game } from '../models/game';
@@ -47,27 +47,24 @@ export class ApiDataService {
   }
 
   addGame(game: GameVM) {
-    const formData = new FormData();
-    formData.append('Name', game.name);
-    formData.append('Genre', game.genre);
-    formData.append('ReleaseDate', game.releaseDate);
-    formData.append('Description', game.description)
-    formData.append('DiskNumber', game.discNumber?.toString());
-    if(game.titlePicture != undefined) {
-      formData.append('TitlePicture', game.titlePicture, game.titlePicture.name);
-    }
-    if (game.screenshots != null) {
-      for (let i = 0; i < game.screenshots.length; i++) {
-        formData.append('Screenshots', game.screenshots[i], game.screenshots[i].name);
+    this.http.post('/api/game', this.setFormData(game), { headers: this.headers }).subscribe({
+      next: result => {
+        console.log(result);
+      },
+      error: (err) => {
+        console.log(err);
       }
-    }
-    if (game.additionalFiles != null) {
-      for (let i = 0; i < game.additionalFiles.length; i++) {
-        formData.append('AdditionalFiles', game.additionalFiles[i], game.additionalFiles[i].name);
-      }
-    }
+    })
+  }
 
-    this.http.post('/api/game', formData, { headers: this.headers }).subscribe({
+  updateGame(game: GameVM) {
+    return this.http.post('/api/game/update', this.setFormData(game),
+      { headers: this.headers, reportProgress: true, observe: 'events', responseType: 'text' });
+  }
+
+  deleteGame(gameId: string) {
+    console.log("Delete")
+    this.http.delete(`/api/game/delete/${gameId}`).subscribe({
       next: result => {
         console.log(result);
       },
@@ -89,5 +86,31 @@ export class ApiDataService {
       // Let the app keep running by returning an empty result.
       return of(result as T);
     };
+  }
+
+  private setFormData(game: GameVM) {
+    const formData = new FormData();
+    formData.append('Id', game.id);
+    formData.append('Developer', game.developer);
+    formData.append('Name', game.name);
+    formData.append('Genre', game.genre);
+    formData.append('ReleaseDate', game.releaseDate);
+    formData.append('Description', game.description)
+    formData.append('DiskNumber', game.discNumber?.toString());
+    formData.append('IsAdditionalFiles', game.isAdditionalFiles ? '1' : '0')
+    if (game.titlePicture != undefined) {
+      formData.append('TitlePicture', game.titlePicture, game.titlePicture.name);
+    }
+    if (game.screenshots != null) {
+      for (let i = 0; i < game.screenshots.length; i++) {
+        formData.append('Screenshots', game.screenshots[i], game.screenshots[i].name);
+      }
+    }
+    if (game.additionalFiles != null) {
+      for (let i = 0; i < game.additionalFiles.length; i++) {
+        formData.append('AdditionalFiles', game.additionalFiles[i], game.additionalFiles[i].name);
+      }
+    }
+    return formData;
   }
 }
