@@ -3,6 +3,9 @@ import { ApiDataService } from "../../services/api-data.service";
 import { ImportsModule } from "../../imports";
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { GameVM } from "../../models/viewModels/game.vm";
+import { HttpEventType } from "@angular/common/http";
+import { MessageService } from "primeng/api";
+import { DataStoreService } from "../../services/data-store.service";
 
 @Component({
   selector: 'app-add-game',
@@ -21,12 +24,15 @@ export class AddGame implements OnInit {
   titlePic: File | undefined;
   screenshots: File[] = [];
   additionalFiles: File[] = [];
+
+  loading: boolean = false;
  
   get controls() {
     return this.addGameForm.controls;
   }
 
-  constructor(private apiData: ApiDataService) { }
+  constructor(private apiData: ApiDataService, private dataStore: DataStoreService,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
     this.addGameForm = new FormGroup({
@@ -72,7 +78,31 @@ export class AddGame implements OnInit {
       additionalFiles: this.additionalFiles ?? [],
     };
 
-    this.apiData.addGame(newGame);
+    this.apiData.addGame(newGame).subscribe({
+      next: event => {
+        if (event.type === HttpEventType.Response) {
+          this.loading = !event.ok;
+          if (event.ok)
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Выполнено',
+              detail: 'Игра обновлена',
+              sticky: true
+            });
+          this.dataStore._updateGameListSubject.next(true);
+        }
+      },
+      error: (err) => {
+        this.loading = false
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Ошибка',
+          detail: err.message,
+          sticky: true
+        });
+        console.log(err);
+      }
+    });
   }
 
   cancel() {

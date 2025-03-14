@@ -18,7 +18,8 @@ export class Dashboard implements OnInit {
   titlePicture: any;
   oneScreen: any;
   screenshots: any[] = [];
-  constructor(private dataStore: DataStoreService, private apiData: ApiDataService) { }
+  
+  constructor(private dataStore: DataStoreService, private apiData: ApiDataService) {}
 
   ngOnInit(): void {
     this.dataStore.activeGameSubjectChanges$.subscribe(gameId => {

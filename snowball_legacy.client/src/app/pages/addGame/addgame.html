@@ -1,6 +1,7 @@
 <button type="button" class="layout-topbar-action" (click)="showAddDialog()">
   <i class="pi pi-plus"></i>
 </button>
+<p-toast />
 <p-dialog header="{{'common.addGame' | translate}}" [(visible)]="showAddDlg"
           [modal]="true" resizable="false" [style]="{ width: '630px' }">
   <form [formGroup]="addGameForm" (ngSubmit)="addGame()">
@@ -101,7 +102,7 @@
 
     <div class="flex justify-end gap-2 form-group">
       <p-button label="{{'common.cancel' | translate}}" severity="secondary" (onClick)="cancel()" />
-      <p-button type="submit" label="{{'common.add' | translate}}" />
+      <p-button type="submit" label="{{'common.add' | translate}}" [loading]="loading" />
     </div>
   </form>
 </p-dialog>

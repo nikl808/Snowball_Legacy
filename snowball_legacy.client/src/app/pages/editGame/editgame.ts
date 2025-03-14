@@ -80,7 +80,6 @@ export class EditGame {
       screenshots: this.screenFiles?.files ?? [],
       additionalFiles: this.additionalFiles?.files ?? [],
     };
-    console.log(this.gameId);
     this.apiData.updateGame(updateGame).subscribe({
       next: event => {
         if (event.type === HttpEventType.Response) {
@@ -94,7 +93,6 @@ export class EditGame {
             });
           this.dataStore._activeGameSubject.next(this.gameId);
         }
-        console.log(event);
       },
       error: (err) => {
         this.loading = false

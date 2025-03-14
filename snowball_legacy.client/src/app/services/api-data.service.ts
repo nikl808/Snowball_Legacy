@@ -47,14 +47,8 @@ export class ApiDataService {
   }
 
   addGame(game: GameVM) {
-    this.http.post('/api/game', this.setFormData(game), { headers: this.headers }).subscribe({
-      next: result => {
-        console.log(result);
-      },
-      error: (err) => {
-        console.log(err);
-      }
-    })
+    return this.http.post('/api/game', this.setFormData(game),
+      { headers: this.headers, reportProgress: true, observe: 'events', responseType: 'text' });
   }
 
   updateGame(game: GameVM) {
@@ -63,15 +57,7 @@ export class ApiDataService {
   }
 
   deleteGame(gameId: string) {
-    console.log("Delete")
-    this.http.delete(`/api/game/delete/${gameId}`).subscribe({
-      next: result => {
-        console.log(result);
-      },
-      error: (err) => {
-        console.log(err);
-      }
-    })
+    this.http.delete(`/api/game/delete/${gameId}`);
   }
 
   private handleError<T>(operation = 'operation', result?: T) {
@@ -96,7 +82,7 @@ export class ApiDataService {
     formData.append('Genre', game.genre);
     formData.append('ReleaseDate', game.releaseDate);
     formData.append('Description', game.description)
-    formData.append('DiskNumber', game.discNumber?.toString());
+    formData.append('DiscNumber', game.discNumber?.toString());
     formData.append('IsAdditionalFiles', game.isAdditionalFiles ? '1' : '0')
     if (game.titlePicture != undefined) {
       formData.append('TitlePicture', game.titlePicture, game.titlePicture.name);
