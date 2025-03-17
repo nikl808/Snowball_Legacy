@@ -22,7 +22,8 @@ public class GamePictureController(DataContext context,
         {
             context.GameTitlePicture.Where(g => g.GameInfoId == gameInfoId).Load();
             var pictures = context.GameTitlePicture.ToList();
-            return pictures[0].Picture is null ? NotFound() : File(pictures[0].Picture, "image/jpeg");
+            var picture = pictures.Find(i => i.GameInfoId == gameInfoId);
+            return picture?.Picture is null ? NotFound() : File(picture.Picture, "image/jpeg");
         }
         catch (Exception e)
         {
@@ -47,7 +48,8 @@ public class GamePictureController(DataContext context,
             {
                 using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, true))
                 {
-                    var screens = context.GameScreenshot.ToList();
+            
+                    var screens = context.GameScreenshot.Where(i=>i.GameInfoId == gameInfoId).ToList();
                     if (screens.Count == 0) return NotFound();
                     var screenIndex = 0;
                     screens.ForEach(file =>

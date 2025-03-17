@@ -76,7 +76,7 @@ export class ApiDataService {
 
   private setFormData(game: GameVM) {
     const formData = new FormData();
-    formData.append('Id', game.id);
+    formData.append('Id', game.id == '' ? '0' : game.id);
     formData.append('Developer', game.developer);
     formData.append('Name', game.name);
     formData.append('Genre', game.genre);

@@ -20,8 +20,8 @@ public class GameFileController(DataContext context,
         try
         {
             context.GameFile.Where(g => g.GameId == gameId).Load();
-            var files = context.GameFile.FirstOrDefault();
-            return files is null ? NotFound() : File(files.File, "application/zip", "files.zip");
+            var files = context.GameFile.Where(i=>i.GameId == gameId).FirstOrDefault();
+            return files is null && files?.File is null ? NotFound() : File(files?.File, "application/zip", "files.zip");
         }
         catch (Exception e)
         {

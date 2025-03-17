@@ -46,7 +46,8 @@ public class GameController(
         try
         {
             context.Game.Where(g => g.Id == gameId).Include(i => i.GameInfo).Load();
-            var game = context.Game.FirstOrDefault();
+            var games = context.Game.ToList();
+            var game = games.Find(i => i.Id == gameId);
             if (game is not null && game.GameInfo is not null)
             {
                 var info = new GameInfoDto()
