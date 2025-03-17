@@ -29,19 +29,19 @@ export class ApiDataService {
   }
 
   public getGameTitlePicture(gameInfoId: number) {
-    return this.http.get('/api/game/titlePicture/' + gameInfoId, { responseType: 'blob' }).pipe(
+    return this.http.get('/api/gamepicture/title/' + gameInfoId, { responseType: 'blob' }).pipe(
       catchError(this.handleError<Blob>('getGameTitlePicture unknown file'))
     );
   }
 
   public getGameScreenshots(gameInfoId: number) {
-    return this.http.get('/api/game/screenshots/' + gameInfoId, { responseType: 'blob' }).pipe(
+    return this.http.get('/api/gamepicture/screenshots/' + gameInfoId, { responseType: 'blob' }).pipe(
       catchError(this.handleError<Blob>('getGameScreenshots unknown files'))
     );
   }
 
   public getAdditionalGameFiles(gameId: string) {
-    return this.http.get('/api/game/additionalFiles/' + gameId, { responseType: 'blob' }).pipe(
+    return this.http.get('/api/gamefile/archive/' + gameId, { responseType: 'blob' }).pipe(
       catchError(this.handleError<Blob>('getAdditionalGamefiles unknown files'))
     );
   }

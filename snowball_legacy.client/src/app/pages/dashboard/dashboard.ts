@@ -43,21 +43,26 @@ export class Dashboard implements OnInit {
             });
 
             this.apiData.getGameScreenshots(this.gameInfo?.id).subscribe({
-              next: async screens => {
-                const zip = new JSZip();
-                this.screenshots = [];
-                const extractedFiles = await zip.loadAsync(screens);
-                extractedFiles.forEach(async (relativePath, file) => {
-                  file.async('base64').then((content) => {
-                    this.screenshots.push(content);
-                  });
-                });
+              next: async data => {                
+                await this.setScreenshots(data);
               }
             });
           }
         }
       });
-    })
+    });
+  }
+
+  async setScreenshots(archive: Blob) {
+    const zip = new JSZip();
+    this.screenshots = [];
+    zip.loadAsync(archive).then(extracted => {
+      Object.keys(extracted.files).forEach((filename) => {
+        zip.file(filename)?.async('base64').then((content) => {
+          this.screenshots.push(content);
+        });
+      });
+    });
   }
 
   getAdditionalFiles() {

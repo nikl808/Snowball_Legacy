@@ -4,7 +4,6 @@ using Snowball_Legacy.Server.Contexts;
 using Snowball_Legacy.Server.Models;
 using Snowball_Legacy.Server.Models.Dtos;
 using Snowball_Legacy.Server.Models.ViewModels;
-using System.IO.Compression;
 
 namespace Snowball_Legacy.Server.Controllers;
 
@@ -41,8 +40,8 @@ public class GameController(
     /// </summary>
     /// <param name="gameId">Game Id</param>
     /// <returns>GameInfoDto</returns>
-    [HttpGet("info/{gameId:int}", Name = "GetGameInfo")]
-    public ActionResult<GameInfoDto> GetGameInfo([FromRoute] int gameId)
+    [HttpGet("info/{gameId}", Name = "GetGameInfo")]
+    public ActionResult<GameInfoDto> GetGameInfo(int gameId)
     {
         try
         {
@@ -68,89 +67,6 @@ public class GameController(
         catch (Exception e)
         {
             logger.LogError("Error when receiving game info", e);
-        }
-        return BadRequest();
-    }
-
-    /// <summary>
-    /// Getting title picture
-    /// </summary>
-    /// <param name="gameInfoId">GameInfoId</param>
-    /// <returns>Picture File</returns>
-    [HttpGet("titlePicture/{gameInfoId:int}", Name="GetTitlePicture")]
-    public IActionResult GetTitlePicture([FromRoute] int gameInfoId)
-    {
-        try
-        {
-            context.GameTitlePicture.Where(g => g.GameInfoId == gameInfoId).Load();
-            var pictures = context.GameTitlePicture.ToList();
-            return pictures[0].Picture is null ? NotFound() : File(pictures[0].Picture, "image/jpeg");
-        }
-        catch(Exception e)
-        {
-            logger.LogError("Error when receiving title picture", e);
-        }
-        return BadRequest();
-    }
-
-    /// <summary>
-    /// Getting screenshots
-    /// </summary>
-    /// <param name="gameInfoId">GameInfoId</param>
-    /// <returns>zip archive</returns>
-    [HttpGet("screenshots/{gameInfoId:int}", Name = "GetScreenshots")]
-    public IActionResult GetScreenshots([FromRoute] int gameInfoId)
-    {
-        try
-        {
-            context.GameScreenshot.Where(g => g.GameInfoId == gameInfoId).Load();
-            using (var ms = new MemoryStream())
-            {
-                using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, true))
-                {
-                    var screens = context.GameScreenshot.ToList();
-                    if (screens.Count == 0) return NotFound();
-                    var random = new Random();
-                    screens.ForEach(file =>
-                    {
-                        if (file.Picture is not null)
-                        {
-                            var entry = zip.CreateEntry($"screenshot_{random.Next(0, 9)}.jpg");
-                            using (var fs = new MemoryStream(file.Picture))
-                            using (var es = entry.Open())
-                            {
-                                fs.CopyTo(es);
-                            }
-                        }
-                    });
-                }
-                return File(ms.ToArray(), "application/zip", "screenshots.zip");
-            }
-        }
-        catch(Exception e)
-        {
-            logger.LogError("Error when receiving screenshots", e);
-        }
-        return BadRequest();
-    }
-
-    /// <summary>
-    /// Getting additional files
-    /// </summary>
-    /// <param name="gameId">GameId</param>
-    /// <returns>zip archive</returns>
-    [HttpGet("additionalFiles/{gameId:int}", Name = "GetAdditionalFiles")]
-    public IActionResult GetAdditionalFiles([FromRoute] int gameId)
-    {
-        try
-        {
-            context.GameFile.Where(g => g.GameId == gameId).Load();
-            var files = context.GameFile.FirstOrDefault();
-            return files is null ? NotFound() : File(files.File, "application/zip", "files.zip");
-        }
-        catch(Exception e)
-        {
-            logger.LogError("Error when receiving files", e);
         }
         return BadRequest();
     }
@@ -286,7 +202,7 @@ public class GameController(
     /// </summary>
     /// <param name="gameId">GameId</param>
     /// <returns>Ok result or error</returns>
-    [HttpDelete("delete/{gameId:int}", Name = "DeleteGame")]
+    [HttpDelete("delete/{gameId}", Name = "DeleteGame")]
     public async Task<IActionResult> DeleteGame(int gameId)
     {
         var game = context.Game.Where(g => g.Id == gameId).FirstOrDefault();
