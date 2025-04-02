@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snowball_Legacy.Server", "Snowball_Legacy.Server\Snowball_Legacy.Server.csproj", "{6330D9C7-8B20-4836-A8DB-EF70EC7452B2}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "snowball_legacy.client", "snowball_legacy.client\snowball_legacy.client.esproj", "{7C9C9BAD-40B4-41EA-96FA-66EB21727A68}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,8 +25,15 @@ Global
 		{7C9C9BAD-40B4-41EA-96FA-66EB21727A68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C9C9BAD-40B4-41EA-96FA-66EB21727A68}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7C9C9BAD-40B4-41EA-96FA-66EB21727A68}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {649B8189-88DA-457D-BDCE-B47B7D584DAA}
 	EndGlobalSection
 EndGlobal

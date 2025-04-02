@@ -31,12 +31,26 @@ builder.Host.UseSerilog((context, configuration) => configuration
 
 var app = builder.Build();
 
+using var scope = app.Services.CreateScope();
+var contextTypes = builder.Services
+                                .Where(sd => sd.ServiceType.IsAssignableTo(typeof(DbContext)))
+                                .Select(sd => sd.ServiceType);
+
+foreach (var contextType in contextTypes)
+{
+    var dbContext = (DbContext)scope.ServiceProvider
+                                    .GetRequiredService(contextType);
+
+    dbContext.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 
 app.MapControllers();
 app.UseCors("CorsPolicy");
-
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapFallbackToFile("/index.html");
 
 app.Run();

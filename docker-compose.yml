@@ -1,0 +1,13 @@
+services:
+  snowball_legacy.server:
+    image: ${DOCKER_REGISTRY-}snowballlegacyserver
+    build:
+      context: .
+      dockerfile: Snowball_Legacy.Server/Dockerfile
+ 
+  postgres_db:
+    container_name: postgres
+    image: postgres:latest
+  
+  proxy:
+    image: nginx:mainline

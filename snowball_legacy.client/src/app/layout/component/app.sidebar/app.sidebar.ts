@@ -28,7 +28,7 @@ export class AppSidebar implements OnInit {
       next: result => {
         let menuItems: MenuItem[] = [];
         result.forEach(game => {
-          menuItems.push({ id: game.id.toString(), label: game.name, routerLink: ['/'] });
+          menuItems.push({ id: game.id.toString(), label: game.name, routerLink: [''] });
         });
         this.model.push({ items: menuItems })
       }
