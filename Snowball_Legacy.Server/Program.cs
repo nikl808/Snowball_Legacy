@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -30,6 +31,11 @@ builder.Host.UseSerilog((context, configuration) => configuration
     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Error));
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 using var scope = app.Services.CreateScope();
 var contextTypes = builder.Services
