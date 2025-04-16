@@ -1,17 +1,10 @@
 services:
   snowball_legacy.server:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
     ports:
       - "8080"
-      - "8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
     depends_on:
       - postgres_db
   
@@ -24,12 +17,35 @@ services:
         - "5432:5432"
     volumes:
         - postgres-data:/var/lib/postgresql/data
+  
+  certbot:
+    command: certonly
+      --non-interactive
+      --agree-tos
+      --email nikl808@github.com
+      --preferred-challenges dns
+      --authenticator dns-duckdns
+      --dns-duckdns-token bf3c271b-754e-4774-a34e-fa7594c11d8d
+      --dns-duckdns-no-txt-restore
+      --dns-duckdns-propagation-seconds 15
+      -d "snowball-legacy.duckdns.org"
+      -d "*.snowball-legacy.duckdns.org"
+    volumes:
+        - ./letsencrypt:/etc/letsencrypt
+        - "./logs:/var/log/letsencrypt"
  
   proxy:
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
+        - ./ssl-dhparams.pem:/etc/letsencrypt
         - ./nginx.conf:/etc/nginx/nginx.conf
+        - ./letsencrypt:/etc/letsencrypt
     ports:
-        - "80:80"
-  
+        - "8080:80"
+        - "8443:443"
+    depends_on:
+        - snowball_legacy.server
+        - certbot
+
 volumes:
     postgres-data:

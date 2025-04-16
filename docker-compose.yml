@@ -9,5 +9,10 @@ services:
     container_name: postgres
     image: postgres:latest
   
+  certbot:
+    container_name: certbot
+    image: "infinityofspace/certbot_dns_duckdns:latest"
+
   proxy:
+    container_name: nginx
     image: nginx:mainline

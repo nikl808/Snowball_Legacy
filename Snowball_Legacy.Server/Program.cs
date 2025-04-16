@@ -41,11 +41,12 @@ foreach (var contextType in contextTypes)
     var dbContext = (DbContext)scope.ServiceProvider
                                     .GetRequiredService(contextType);
 
-    dbContext.Database.Migrate();
+    if(!dbContext.Database.GetPendingMigrations().Any())
+        dbContext.Database.Migrate();
 }
 
 // Configure the HTTP request pipeline.
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.MapControllers();
 app.UseCors("CorsPolicy");
