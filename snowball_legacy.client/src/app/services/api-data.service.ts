@@ -57,7 +57,8 @@ export class ApiDataService {
   }
 
   deleteGame(gameId: string) {
-    this.http.delete(`/api/game/delete/${gameId}`);
+    let header: HttpHeaders = new HttpHeaders({ 'gameId': gameId });
+    return this.http.delete('/api/game/', { headers: header, reportProgress: true, observe: 'events', responseType: 'text' });
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

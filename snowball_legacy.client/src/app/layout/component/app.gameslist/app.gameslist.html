@@ -1,0 +1,5 @@
+<ul class="layout-menu">
+  <li class="listbox-items" *ngFor="let item of items; let i = index">
+    <div [ngClass]="{activeitem: activeGame == i}" class="listbox-item" (click)="onItemSelect(item, i)">{{item.name}}</div>
+  </li>
+</ul>

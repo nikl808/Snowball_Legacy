@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuItem, ConfirmationService } from 'primeng/api';
+import { MenuItem, ConfirmationService, MessageService } from 'primeng/api';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
-import { AppConfigurator } from '../app.configurator/app.configurator';
 import { LayoutService } from '../../service/layout.service';
 import { AddGame } from '../../../pages/addGame/addgame';
 import { EditGame } from '../../../pages/editGame/editgame'
@@ -11,11 +10,12 @@ import { DividerModule } from 'primeng/divider';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ApiDataService } from '../../../services/api-data.service';
 import { DataStoreService } from '../../../services/data-store.service';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, DividerModule, AppConfigurator, AddGame, EditGame,
+  imports: [RouterModule, CommonModule, StyleClassModule, DividerModule, AddGame, EditGame,
     ConfirmDialogModule],
   providers: [ConfirmationService],
   templateUrl: './app.topbar.html'
@@ -26,7 +26,8 @@ export class AppTopbar implements OnInit {
   constructor(public layoutService: LayoutService,
     public dataStore: DataStoreService,
     private confirmationService: ConfirmationService,
-    private apiData: ApiDataService) { }
+    private apiData: ApiDataService,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
     this.dataStore.activeGameSubjectChanges$.subscribe(id => this.currentGameId = id);
@@ -50,7 +51,30 @@ export class AppTopbar implements OnInit {
         severity: 'Danger'
       },
       accept: () => {
-        this.apiData.deleteGame(this.currentGameId);
+        this.apiData.deleteGame(this.currentGameId).subscribe({
+          next: event => {
+            if (event.type === HttpEventType.Response) {
+              if (event.ok)
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Выполнено',
+                  detail: 'Игра удалена',
+                  sticky: true
+                });
+              this.dataStore._updateGameListSubject.next(true);
+            }
+          },
+          error: (err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Ошибка',
+              detail: err.message,
+              sticky: true
+            });
+            console.log(err);
+          }
+
+        });
       },
       reject: () => { },
     })

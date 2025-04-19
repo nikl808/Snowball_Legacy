@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core'
 import { ImportsModule } from "../../../imports";
-import { MenuItem } from 'primeng/api';
 import { ApiDataService } from '../../../services/api-data.service';
-import { AppMenuitem } from '../app.menuitem/app.menuitem';
 import { DataStoreService } from '../../../services/data-store.service';
+import { Game } from '../../../models/game';
+import { AppGamesList } from '../app.gameslist/app.gameslist';
 
 @Component({
   selector: "app-sidebar",
   templateUrl: "./app.sidebar.html",
   standalone: true,
-  imports: [ImportsModule, AppMenuitem]
+  imports: [ImportsModule, AppGamesList]
 })
 export class AppSidebar implements OnInit {
-  model: MenuItem[] = [];
+  games: Game[] = [];
 
   constructor(private dataService: ApiDataService, private dataStore: DataStoreService) { }
 
@@ -26,12 +26,14 @@ export class AppSidebar implements OnInit {
   setGameList() {
     this.dataService.getGames().subscribe({
       next: result => {
-        let menuItems: MenuItem[] = [];
-        result.forEach(game => {
-          menuItems.push({ id: game.id.toString(), label: game.name, routerLink: [''] });
-        });
-        this.model.push({ items: menuItems })
+        this.games = result;
+        if (this.games.length > 0)
+          this.dataStore._activeGameSubject.next(this.games[0].id.toString() ?? '');
       }
     });
+  }
+
+  onGameChanged(event: Game) {
+      this.dataStore._activeGameSubject.next(event.id.toString() ?? '');
   }
 }

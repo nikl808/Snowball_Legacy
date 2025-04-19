@@ -20,6 +20,7 @@ import { ImageModule } from 'primeng/image';
 import { PanelModule } from 'primeng/panel';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from "primeng/api";
+import { ListboxModule } from 'primeng/listbox';
 
 @NgModule({
   imports: [
@@ -29,7 +30,7 @@ import { MessageService } from "primeng/api";
     FileUploadModule, TextareaModule, ProgressBarModule,
     BadgeModule, OverlayBadgeModule, InputNumberModule,
     DropdownModule, InputMaskModule, CardModule,
-    ImageModule, PanelModule, ToastModule
+    ImageModule, PanelModule, ToastModule, ListboxModule
   ],
   exports: [
     TranslateModule, FormsModule, InputTextModule,
@@ -38,7 +39,7 @@ import { MessageService } from "primeng/api";
     FileUploadModule, TextareaModule, ProgressBarModule,
     BadgeModule, OverlayBadgeModule, InputNumberModule,
     DropdownModule, InputMaskModule, CardModule,
-    ImageModule, PanelModule, ToastModule
+    ImageModule, PanelModule, ToastModule, ListboxModule
   ],
   providers: [MessageService]
 })

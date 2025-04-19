@@ -203,8 +203,8 @@ public class GameController(
     /// </summary>
     /// <param name="gameId">GameId</param>
     /// <returns>Ok result or error</returns>
-    [HttpDelete("delete/{gameId}", Name = "DeleteGame")]
-    public async Task<IActionResult> DeleteGame(int gameId)
+    [HttpDelete]
+    public async Task<IActionResult> DeleteGame([FromHeader] int gameId)
     {
         var game = context.Game.Where(g => g.Id == gameId).FirstOrDefault();
         if (game is not null)
