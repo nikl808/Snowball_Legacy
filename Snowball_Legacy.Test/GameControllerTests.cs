@@ -68,7 +68,7 @@ public class GameControllerTests
             Name = "New Game",
             Developer = "Developer",
             Genre = "Genre",
-            ReleaseDate = "2025-04-21",
+            ReleaseDate = "21.04.2025",
             Description = "Description",
             DiscNumber = 1,
             IsAdditionalFiles = 0
@@ -96,7 +96,7 @@ public class GameControllerTests
             Name = "Updated Game",
             Developer = "Updated Developer",
             Genre = "Updated Genre",
-            ReleaseDate = "2025-04-21",
+            ReleaseDate = "21.04.2025",
             Description = "Updated Description",
             DiscNumber = 2,
             IsAdditionalFiles = 1

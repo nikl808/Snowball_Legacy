@@ -18,7 +18,7 @@ export class AddGame implements OnInit {
   showAddDlg: boolean = false;
   submitted: boolean = false;
 
-  genres: string[] = ["Стратегия", "3D-action"];
+  genres: string[] = ["Стратегия", "3D-action, Гонки"];
   selectedGenre: string = this.genres[0];
 
   titlePic: File | undefined;

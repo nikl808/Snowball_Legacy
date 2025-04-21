@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Snowball_Legacy.Server.Contexts;
 using Snowball_Legacy.Server.Models;
@@ -203,7 +204,7 @@ public class GameController(
             Description = vm.Description,
             Genre = vm.Genre,
             DiskNumber = vm.DiscNumber,
-            ReleaseDate = DateOnly.Parse(vm.ReleaseDate)
+            ReleaseDate = DateOnly.Parse(DateTime.ParseExact(vm.ReleaseDate, "dd.mm.yyyy", null).ToShortDateString())
         };
     }
 
