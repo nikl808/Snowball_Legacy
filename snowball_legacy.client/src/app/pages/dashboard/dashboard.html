@@ -15,7 +15,7 @@
             <div class="!font-bold">{{'common.releaseDate' | translate}}: {{gameInfo?.releaseDate}}</div>
             <div class="!font-bold">{{'common.genre' | translate}}: {{gameInfo?.genre}}</div>
             <div class="!font-bold">{{'common.discNum' | translate}}: {{gameInfo?.discNumber}}</div>
-            <div class="!font-bold">{{'common.additionalGameFiles' | translate}}: <p-button icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" /></div>
+            <div class="!font-bold">{{'common.additionalGameFiles' | translate}}: <p-button icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" [loading]="fileDownload"/></div>
           </div>
           <div class="!font-bold !text-xl mb-3">{{'common.gameDescription' | translate}}:</div>
           <p class="!text-lg">{{gameInfo?.description}}</p>

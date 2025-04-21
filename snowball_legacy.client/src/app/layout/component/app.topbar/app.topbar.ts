@@ -11,6 +11,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ApiDataService } from '../../../services/api-data.service';
 import { DataStoreService } from '../../../services/data-store.service';
 import { HttpEventType } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-topbar',
@@ -21,6 +23,8 @@ import { HttpEventType } from '@angular/common/http';
   templateUrl: './app.topbar.html'
 })
 export class AppTopbar implements OnInit {
+  private destroy$ = new Subject<void>();
+
   items!: MenuItem[];
   currentGameId: string = '';
   constructor(public layoutService: LayoutService,
@@ -30,7 +34,9 @@ export class AppTopbar implements OnInit {
     private messageService: MessageService) { }
 
   ngOnInit(): void {
-    this.dataStore.activeGameSubjectChanges$.subscribe(id => this.currentGameId = id);
+    this.dataStore.activeGameSubjectChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(id => this.currentGameId = id);
   }
 
   deleteGame(event: Event) {
@@ -82,5 +88,10 @@ export class AppTopbar implements OnInit {
 
   toggleDarkMode() {
     this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

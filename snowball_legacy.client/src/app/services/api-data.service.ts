@@ -1,4 +1,4 @@
-import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core'
 import { GameVM } from '../models/viewModels/game.vm';
 import { Game } from '../models/game';
@@ -15,35 +15,23 @@ export class ApiDataService {
   }
 
   getGames() {
-    return this.http.get<Game[]>('/api/game/list')
-     .pipe(
-       catchError(this.handleError<Game[]>('getGames', []))
-     );
+    return this.get<Game[]>('/api/game/list', 'getGames');
   }
 
   getGameInfo(gameId: string) {
-    return this.http.get<GameInfo>('/api/game/info/' + gameId)
-      .pipe(
-        catchError(this.handleError<GameInfo>(`getGameInfo id=${gameId}`))
-      );
+    return this.get<GameInfo>(`/api/game/info/${gameId}`, `getGameInfo id=${gameId}`);
   }
 
   public getGameTitlePicture(gameInfoId: number) {
-    return this.http.get('/api/gamepicture/title/' + gameInfoId, { responseType: 'blob' }).pipe(
-      catchError(this.handleError<Blob>('getGameTitlePicture unknown file'))
-    );
+    return this.getBlob(`/api/gamepicture/title/${gameInfoId}`, 'getGameTitlePicture');
   }
 
   public getGameScreenshots(gameInfoId: number) {
-    return this.http.get('/api/gamepicture/screenshots/' + gameInfoId, { responseType: 'blob' }).pipe(
-      catchError(this.handleError<Blob>('getGameScreenshots unknown files'))
-    );
+    return this.getBlob(`/api/gamepicture/screenshots/${gameInfoId}`, 'getGameScreenshots');
   }
 
   public getAdditionalGameFiles(gameId: string) {
-    return this.http.get('/api/gamefile/archive/' + gameId, { responseType: 'blob' }).pipe(
-      catchError(this.handleError<Blob>('getAdditionalGamefiles unknown files'))
-    );
+    return this.getBlob(`/api/gamefile/archive/${gameId}`, 'getAdditionalGameFiles');
   }
 
   addGame(game: GameVM) {
@@ -61,18 +49,33 @@ export class ApiDataService {
     return this.http.delete('/api/game/', { headers: header, reportProgress: true, observe: 'events', responseType: 'text' });
   }
 
+  private get<T>(url: string, operation: string): Observable<T> {
+    return this.http.get<T>(url)
+      .pipe(
+        catchError(this.handleError<T>(operation))
+      );
+  }
+
+  private getBlob(url: string, operation: string): Observable<Blob> {
+    return this.http.get(url, { responseType: 'blob' }).pipe(
+      catchError(this.handleError<Blob>(operation))
+    );
+  }
+
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-
       // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
-
-      // TODO: better job of transforming error for user consumption
-      console.log(`${operation} failed: ${error.message}`);
+      console.error(`${operation} failed ${error}`); // log to console instead
 
       // Let the app keep running by returning an empty result.
       return of(result as T);
     };
+  }
+
+  private appendFiles(formData: FormData, files: File[] | null, fieldName: string): void {
+    if (files) {
+      files.forEach(file => formData.append(fieldName, file, file.name));
+    }
   }
 
   private setFormData(game: GameVM) {
@@ -85,19 +88,15 @@ export class ApiDataService {
     formData.append('Description', game.description)
     formData.append('DiscNumber', game.discNumber?.toString());
     formData.append('IsAdditionalFiles', game.isAdditionalFiles ? '1' : '0')
-    if (game.titlePicture != undefined) {
+    if (game.titlePicture) 
       formData.append('TitlePicture', game.titlePicture, game.titlePicture.name);
-    }
-    if (game.screenshots != null) {
-      for (let i = 0; i < game.screenshots.length; i++) {
-        formData.append('Screenshots', game.screenshots[i], game.screenshots[i].name);
-      }
-    }
-    if (game.additionalFiles != null) {
-      for (let i = 0; i < game.additionalFiles.length; i++) {
-        formData.append('AdditionalFiles', game.additionalFiles[i], game.additionalFiles[i].name);
-      }
-    }
+    
+    if (game.screenshots)
+      this.appendFiles(formData, game.screenshots, 'Screenshots');
+    
+    if (game.additionalFiles)
+      this.appendFiles(formData, game.additionalFiles, 'AdditionalFiles');  
+    
     return formData;
   }
 }

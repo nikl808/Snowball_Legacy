@@ -44,4 +44,8 @@ export class AppGamesList {
       this.itemSelected.emit(event);
     }
   }
+
+  trackById(index: number, item: Game): number {
+    return item.id;
+  }
 }

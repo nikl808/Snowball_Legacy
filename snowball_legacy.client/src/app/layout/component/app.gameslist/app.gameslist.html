@@ -1,5 +1,8 @@
-<ul class="layout-menu">
-  <li class="listbox-items" *ngFor="let item of items; let i = index">
-    <div [ngClass]="{activeitem: activeGame == i}" class="listbox-item" (click)="onItemSelect(item, i)">{{item.name}}</div>
+<div class="listbox-item" *ngIf="items.length === 0">{{'common.nogames' | translate}}</div>
+<ul class="listbox-items" *ngIf="items.length > 0">
+  <li class="listbox-item" *ngFor="let item of items; let i = index; trackBy: trackById"
+      [class.activeitem]="activeGame === i"
+      (click)="onItemSelect(item, i)">
+    {{item.name}}
   </li>
 </ul>
