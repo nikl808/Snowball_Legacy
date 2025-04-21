@@ -18,7 +18,7 @@ export class AddGame implements OnInit {
   showAddDlg: boolean = false;
   submitted: boolean = false;
 
-  genres: string[] = ["Стратегия"];
+  genres: string[] = ["Стратегия", "3D-action"];
   selectedGenre: string = this.genres[0];
 
   titlePic: File | undefined;
@@ -81,8 +81,9 @@ export class AddGame implements OnInit {
     this.apiData.addGame(newGame).subscribe({
       next: event => {
         if (event.type === HttpEventType.Response) {
-          this.loading = !event.ok;
+          this.loading = !this.loading;
           if (event.ok)
+            this.loading = !this.loading;
             this.messageService.add({
               severity: 'success',
               summary: 'Выполнено',
@@ -93,7 +94,7 @@ export class AddGame implements OnInit {
         }
       },
       error: (err) => {
-        this.loading = false
+        this.loading = !this.loading
         this.messageService.add({
           severity: 'error',
           summary: 'Ошибка',

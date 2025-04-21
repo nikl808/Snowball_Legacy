@@ -27,7 +27,7 @@ export class EditGame {
   submitted: boolean = false;
   loading: boolean = false;
 
-  genres: string[] = ["Стратегия"];
+  genres: string[] = ["Стратегия", "3d-action"];
   selectedGenre: string = '';
 
   get controls() {

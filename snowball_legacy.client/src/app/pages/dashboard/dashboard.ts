@@ -18,6 +18,7 @@ export class Dashboard implements OnInit {
   titlePicture: any;
   oneScreen: any;
   screenshots: any[] = [];
+  fileDownload: boolean = false;
   
   constructor(private dataStore: DataStoreService, private apiData: ApiDataService) {}
 
@@ -68,8 +69,10 @@ export class Dashboard implements OnInit {
   getAdditionalFiles() {
     this.apiData.getAdditionalGameFiles(this.gameId).subscribe({
       next: zip => {
+        this.fileDownload = !this.fileDownload;
         fs.saveAs(zip, "files.zip");
-      }
+      },
+      complete: () => { this.fileDownload = !this.fileDownload; }
     });
   }
 }

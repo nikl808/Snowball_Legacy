@@ -18,21 +18,23 @@ public class GameController(
     /// </summary>
     /// <returns>List of GameDto</returns>
     [HttpGet("list", Name = "GetGames")]
-    public ActionResult<IList<GameDto>> GetGames() {
+    public async Task<ActionResult<IList<GameDto>>> GetGames()
+    {
         try
         {
-            var games = context.Game.Select(g => new GameDto
-            {
-                Id = g.Id,
-                Name = g.Name
-            }).ToList();
-            return games.Count() > 0 ? Ok(games) : NotFound();
+            var games = await context.Game
+                .Select(g => new GameDto
+                {
+                    Id = g.Id,
+                    Name = g.Name
+                }).ToListAsync();
+            return games.Any() ? Ok(games) : NotFound("No games found.");
         }
         catch (Exception e)
         {
-            logger.LogError("Error when receiving game list", e);
+            logger.LogError(e, "An error occurred while retrieving the game list.");
+            return StatusCode(500, "Internal server error");
         }
-        return BadRequest();
     }
 
     /// <summary>
@@ -41,35 +43,32 @@ public class GameController(
     /// <param name="gameId">Game Id</param>
     /// <returns>GameInfoDto</returns>
     [HttpGet("info/{gameId}", Name = "GetGameInfo")]
-    public ActionResult<GameInfoDto> GetGameInfo(int gameId)
+    public async Task<ActionResult<GameInfoDto>> GetGameInfo(int gameId)
     {
         try
         {
-            context.Game.Where(g => g.Id == gameId).Include(i => i.GameInfo).Load();
-            var games = context.Game.ToList();
-            var game = games.Find(i => i.Id == gameId);
-            if (game is not null && game.GameInfo is not null)
+            var game = await context.Game.Include(i => i.GameInfo).FirstOrDefaultAsync(g => g.Id == gameId);
+            if (game?.GameInfo is null)
+                return NotFound($"Game with Id {gameId} not found");
+
+            var info = new GameInfoDto()
             {
-                var info = new GameInfoDto()
-                {
-                    Id = game.GameInfo.Id,
-                    Name = game.Name,
-                    Developer =  game.GameInfo.Developer,
-                    Genre = game.GameInfo.Genre,
-                    ReleaseDate = game.GameInfo.ReleaseDate,
-                    IsAdditionalFiles = game.GameInfo.IsAdditionalFiles,
-                    DiscNumber = game.GameInfo.DiskNumber,
-                    Description = game.GameInfo.Description
-                };
-                return Ok(info);
-            }
-            return NotFound();
+                Id = game.GameInfo.Id,
+                Name = game.Name,
+                Developer = game.GameInfo.Developer,
+                Genre = game.GameInfo.Genre,
+                ReleaseDate = game.GameInfo.ReleaseDate,
+                IsAdditionalFiles = game.GameInfo.IsAdditionalFiles,
+                DiscNumber = game.GameInfo.DiskNumber,
+                Description = game.GameInfo.Description
+            };
+            return Ok(info);
         }
         catch (Exception e)
         {
-            logger.LogError("Error when receiving game info", e);
+            logger.LogError(e, $"Error when receiving game info for Id {gameId}");
+            return StatusCode(500, "Internal server error");
         }
-        return BadRequest();
     }
 
     /// <summary>
@@ -83,39 +82,47 @@ public class GameController(
     {
         try
         {
+            // Create a game entity
             var game = new Game { Name = vm.Name };
-            var gameInfo = SetGameInfo(game, vm);
+            var gameInfo = ProccessGameInfo(game, vm);
             game.GameInfo = gameInfo;
 
-            if (vm.TitlePicture is not null)
+            // Process title picture
+            if (vm.TitlePicture?.Any() is true)
             {
-                var titlePicture = await SetTitlePictureAsync(gameInfo, vm.TitlePicture[0]);
+                var titlePicture = await ProcessTitlePictureAsync(gameInfo, vm.TitlePicture[0]);
                 await context.GameTitlePicture.AddAsync(titlePicture);
             }
 
-            if (vm.Screenshots is not null)
+            // Process screenshots
+            if (vm.Screenshots?.Any() is true)
             {
-                var screenshots = await SetScreenshotsAsync(gameInfo, vm.Screenshots);
+                var screenshots = await ProcessScreenshotsAsync(gameInfo, vm.Screenshots);
                 gameInfo.ScreenShoots = screenshots;
                 await context.GameScreenshot.AddRangeAsync(screenshots);
             }
 
+            // Add game and game info to the context
             await context.Game.AddAsync(game);
             await context.GameInfo.AddAsync(gameInfo);
 
-            if (vm.AdditionalFiles is not null)
+            //Process additional files
+            if (vm.AdditionalFiles?.Any() is true)
             {
-                var gameFiles = await SetAdditionalFiles(game, vm.AdditionalFiles);
+                var gameFiles = await ProcessAdditionalFiles(game, vm.AdditionalFiles);
                 await context.GameFile.AddRangeAsync(gameFiles);
             }
+
+            // Save changes to the db
             await context.SaveChangesAsync();
+            return Ok("Game successfully uploaded.");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            logger.LogError("Game additional error", ex);
+            logger.LogError(e, "Game additional error");
             return StatusCode(500, "Internal server error");
         }
-        return Ok("Uploaded");
+
     }
 
     /// <summary>
@@ -129,73 +136,32 @@ public class GameController(
     {
         try
         {
-            var game = context.Game.Find(vm.Id);
-            var gameInfo = context.GameInfo.Find(vm.Id);
-            if (game is null || gameInfo is null) return BadRequest();
+            //Get game and game info
+            var game = await context.Game.Include(g => g.GameInfo).FirstOrDefaultAsync(g => g.Id == vm.Id);
+            if (game is null || game.GameInfo is null) return NotFound($"Game with Id {vm.Id} not found.");
 
+            //Update main game and game info
             game.Name = vm.Name;
-            context.Game.Update(game);
-            gameInfo.Developer = vm.Developer;
-            gameInfo.IsAdditionalFiles = Convert.ToBoolean(vm.IsAdditionalFiles);
-            gameInfo.Description = vm.Description;
-            gameInfo.Genre = vm.Genre;
-            gameInfo.DiskNumber = vm.DiscNumber;
-            gameInfo.ReleaseDate = DateOnly.Parse(vm.ReleaseDate);
-            context.GameInfo.Update(gameInfo);
-            
-            if (vm.TitlePicture is not null)
-            {
-                context.GameTitlePicture.Where(g => g.GameInfoId == gameInfo.Id).Load();
-                var titlePicture = context.GameTitlePicture.FirstOrDefault();
-                if (titlePicture is not null)
-                {
-                    titlePicture.Picture = await FileToByteArrayAsync(vm.TitlePicture[0]);
-                    context.GameTitlePicture.Update(titlePicture);
-                }
-            }
+            game.GameInfo = UpdateGameInfo(game.GameInfo, vm);
+
+            //Update title picture
+            if (vm.TitlePicture?.Any() is true)
+                await UpdateTitlePictureAsync(game.GameInfo, vm.TitlePicture[0]);
 
             if (vm.Screenshots is not null)
-            {
-                context.GameScreenshot.Where(g => g.GameInfoId == gameInfo.Id).Load();
-                var screenshotsContext = context.GameScreenshot.ToList();
-                if(screenshotsContext is not null)
-                {
-                    var screens = vm.Screenshots.Select(async s => await FileToByteArrayAsync(s)).Select(r => r.Result).ToList();
-                    if(screenshotsContext.Count < screens.Count)
-                    {
-                        foreach (var scr in screens)
-                            screenshotsContext.Add(new GameScreenshots { GameInfo = gameInfo, Picture = scr });
-                    }
-                    
-                    else if (screenshotsContext.Count > screens.Count)
-                        screenshotsContext = screenshotsContext.Take(screens.Count).ToList();
-                
-                    for (int i = 0; i <= screenshotsContext.Count - 1; i++)
-                        screenshotsContext[i].Picture = screens[i];
-                    
-                    context.GameScreenshot.UpdateRange(screenshotsContext);
-                }
-                
-            }
+                await UpdateScreenshotsAsync(game.GameInfo, vm.Screenshots);
 
             if (vm.AdditionalFiles is not null)
-            {
-                context.GameFile.Where(g => g.GameId == game.Id).Load();
-                var files = context.GameFile.FirstOrDefault();
-                if (files is not null)
-                {
-                    files.File = await FileToByteArrayAsync(vm.AdditionalFiles[0]);
-                    context.GameFile.UpdateRange(files);
-                }
-            }
+                await UpdateAdditionalFilesAsync(game, vm.AdditionalFiles);
+
             await context.SaveChangesAsync();
+            return Ok("Game successfully updated");
         }
         catch (Exception ex)
         {
-            logger.LogError("Game update error", ex);
+            logger.LogError(ex, $"An error occurred while updating the game with ID {vm.Id}.");
             return StatusCode(500, "Internal server error");
         }
-        return Ok("Updated");
     }
 
     /// <summary>
@@ -203,8 +169,8 @@ public class GameController(
     /// </summary>
     /// <param name="gameId">GameId</param>
     /// <returns>Ok result or error</returns>
-    [HttpDelete("delete/{gameId}", Name = "DeleteGame")]
-    public async Task<IActionResult> DeleteGame(int gameId)
+    [HttpDelete]
+    public async Task<IActionResult> DeleteGame([FromHeader] int gameId)
     {
         var game = context.Game.Where(g => g.Id == gameId).FirstOrDefault();
         if (game is not null)
@@ -213,20 +179,24 @@ public class GameController(
             await context.SaveChangesAsync();
             return Ok($"Game: {gameId} is removed");
         }
-        logger.LogError("Game is not found", gameId);
-        return BadRequest();
+        logger.LogError(gameId, "Game is not found");
+        return StatusCode(500, "Internal server error");
     }
 
     private async Task<byte[]> FileToByteArrayAsync(IFormFile file)
     {
-        using var memoryStream = new MemoryStream();
+        if (file is null || file.Length == 0)
+            throw new ArgumentException("File is null or empty.", nameof(file));
+        
+        using var memoryStream = new MemoryStream((int)file.Length);
         await file.CopyToAsync(memoryStream);
         return memoryStream.ToArray();
     }
 
-    private GameInfo SetGameInfo(Game game, GameViewModel vm)
+    private GameInfo ProccessGameInfo(Game game, GameViewModel vm)
     {
-        return new GameInfo {
+        return new GameInfo
+        {
             Game = game,
             Developer = vm.Developer,
             IsAdditionalFiles = Convert.ToBoolean(vm.IsAdditionalFiles),
@@ -237,16 +207,19 @@ public class GameController(
         };
     }
 
-    private async Task<GameTitlePicture> SetTitlePictureAsync(GameInfo gameInfo, IFormFile titlePictureFile)
+    private async Task<GameTitlePicture> ProcessTitlePictureAsync(GameInfo gameInfo, IFormFile titlePictureFile)
     {
-        var titlePicture = new GameTitlePicture();
-        titlePicture.GameInfo = gameInfo;
-        titlePicture.Picture = await FileToByteArrayAsync(titlePictureFile);
+        var titlePicture = new GameTitlePicture
+        {
+            GameInfo = gameInfo,
+            Picture = await FileToByteArrayAsync(titlePictureFile)
+        };
+
         gameInfo.TitlePicture = titlePicture;
         return titlePicture;
     }
 
-    private async Task<List<GameScreenshots>> SetScreenshotsAsync(GameInfo gameInfo, List<IFormFile> screenshotFiles)
+    private async Task<List<GameScreenshots>> ProcessScreenshotsAsync(GameInfo gameInfo, List<IFormFile> screenshotFiles)
     {
         var screenshots = new List<GameScreenshots>();
         foreach (var screenshoot in screenshotFiles)
@@ -260,7 +233,7 @@ public class GameController(
         return screenshots;
     }
 
-    private async Task<List<GameFile>> SetAdditionalFiles(Game game, List<IFormFile> additionalFiles)
+    private async Task<List<GameFile>> ProcessAdditionalFiles(Game game, List<IFormFile> additionalFiles)
     {
         var gameFiles = new List<GameFile>();
         foreach (var gamefile in additionalFiles)
@@ -272,5 +245,90 @@ public class GameController(
             });
         }
         return gameFiles;
+    }
+
+    private GameInfo UpdateGameInfo(GameInfo gameInfo, GameViewModel vm)
+    {
+        gameInfo.Developer = vm.Developer;
+        gameInfo.IsAdditionalFiles = Convert.ToBoolean(vm.IsAdditionalFiles);
+        gameInfo.Description = vm.Description;
+        gameInfo.Genre = vm.Genre;
+        gameInfo.DiskNumber = vm.DiscNumber;
+        gameInfo.ReleaseDate = DateOnly.Parse(vm.ReleaseDate);
+        return gameInfo;
+    }
+
+    private async Task UpdateTitlePictureAsync(GameInfo gameInfo, IFormFile titlePictureFile)
+    {
+        var titlePicture = await context.GameTitlePicture.FirstOrDefaultAsync(tp => tp.GameInfoId == gameInfo.Id);
+        if (titlePicture is null)
+        {
+            titlePicture = new GameTitlePicture
+            {
+                GameInfo = gameInfo,
+                Picture = await FileToByteArrayAsync(titlePictureFile)
+            };
+            await context.GameTitlePicture.AddAsync(titlePicture);
+        }
+        else
+        {
+            titlePicture.Picture = await FileToByteArrayAsync(titlePictureFile);
+            context.GameTitlePicture.Update(titlePicture);
+        }
+    }
+
+    private async Task UpdateScreenshotsAsync(GameInfo gameInfo, List<IFormFile> screenshotFiles)
+    {
+        var existingScreenshots = await context.GameScreenshot
+            .Where(gs => gs.GameInfoId == gameInfo.Id)
+            .ToListAsync();
+
+        // Delete excess screenshots
+        if (existingScreenshots.Count > screenshotFiles.Count)
+        {
+            var screenshotsToRemove = existingScreenshots.Skip(screenshotFiles.Count).ToList();
+            context.GameScreenshot.RemoveRange(screenshotsToRemove);
+        }
+
+        // Update existing screenshots or add new ones
+        for (int i = 0; i < screenshotFiles.Count; i++)
+        {
+            if (i < existingScreenshots.Count)
+            {
+                existingScreenshots[i].Picture = await FileToByteArrayAsync(screenshotFiles[i]);
+                context.GameScreenshot.Update(existingScreenshots[i]);
+            }
+            else
+            {
+                var newScreenshot = new GameScreenshots
+                {
+                    GameInfo = gameInfo,
+                    Picture = await FileToByteArrayAsync(screenshotFiles[i])
+                };
+                await context.GameScreenshot.AddAsync(newScreenshot);
+            }
+        }
+    }
+
+    private async Task UpdateAdditionalFilesAsync(Game game, List<IFormFile> additionalFiles)
+    {
+        var existingFiles = await context.GameFile
+            .Where(gf => gf.GameId == game.Id)
+            .ToListAsync();
+
+        // Delete excess files
+        context.GameFile.RemoveRange(existingFiles);
+
+        // Add new files
+        var newFiles = new List<GameFile>();
+        foreach (var file in additionalFiles)
+        {
+            newFiles.Add(new GameFile
+            {
+                Game = game,
+                File = await FileToByteArrayAsync(file)
+            });
+        }
+        await context.GameFile.AddRangeAsync(newFiles);
     }
 }

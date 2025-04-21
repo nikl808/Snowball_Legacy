@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Snowball_Legacy.Server.Contexts;
 using System.IO.Compression;
 
@@ -20,16 +19,22 @@ public class GamePictureController(DataContext context,
     {
         try
         {
-            context.GameTitlePicture.Where(g => g.GameInfoId == gameInfoId).Load();
-            var pictures = context.GameTitlePicture.ToList();
-            var picture = pictures.Find(i => i.GameInfoId == gameInfoId);
-            return picture?.Picture is null ? NotFound() : File(picture.Picture, "image/jpeg");
+            var picture = context.GameTitlePicture.FirstOrDefault(g => g.GameInfoId == gameInfoId);
+            
+            if (picture?.Picture is null)
+            {
+                logger.LogWarning($"No title picture found for GameInfoId: {gameInfoId}");
+                return NotFound($"No title picture found for GameInfoId: {gameInfoId}");
+            }
+
+            //Return file as jpeg
+            return File(picture.Picture, "image/jpeg");
         }
         catch (Exception e)
         {
-            logger.LogError("Error when receiving title picture", e);
+            logger.LogError(e, $"An error occurred while retrieving the title picture for GameInfoId: {gameInfoId}");
+            return StatusCode(500, "Internal server error");
         }
-        return BadRequest();
     }
 
 
@@ -43,35 +48,42 @@ public class GamePictureController(DataContext context,
     {
         try
         {
-            context.GameScreenshot.Where(g => g.GameInfoId == gameInfoId).Load();
-            using (var ms = new MemoryStream())
+            // Get screenshots from the database
+            var screenshots = context.GameScreenshot
+                .Where(g => g.GameInfoId == gameInfoId && g.Picture != null)
+                .ToList();
+
+            if (!screenshots.Any())
             {
-                using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, true))
-                {
-            
-                    var screens = context.GameScreenshot.Where(i=>i.GameInfoId == gameInfoId).ToList();
-                    if (screens.Count == 0) return NotFound();
-                    var screenIndex = 0;
-                    screens.ForEach(file =>
-                    {
-                        if (file.Picture is not null)
-                        {
-                            var entry = zip.CreateEntry($"screenshot_{screenIndex++}.jpg");
-                            using (var fs = new MemoryStream(file.Picture))
-                            using (var es = entry.Open())
-                            {
-                                fs.CopyTo(es);
-                            }
-                        }
-                    });
-                }
-                return File(ms.ToArray(), "application/zip", "screenshots.zip");
+                logger.LogWarning($"No screenshots found for GameInfoId: {gameInfoId}");
+                return NotFound($"No screenshots found for GameInfoId: {gameInfoId}");
             }
+
+            // Create zip-archive
+            using var memoryStream = new MemoryStream();
+            using (var zip = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+            {
+                for (int i = 0; i < screenshots.Count; i++)
+                {
+                    var screenshot = screenshots[i];
+                    var entry = zip.CreateEntry($"screenshot_{i + 1}.jpg");
+                    if (screenshot.Picture == null)
+                    {
+                        logger.LogWarning($"Null picture encountered for screenshot with Id: {screenshot.Id}");
+                        continue;
+                    }
+                    using var entryStream = entry.Open();
+                    entryStream.Write(screenshot.Picture, 0, screenshot.Picture.Length);
+                }
+            }
+
+            //Return zip-archive
+            return File(memoryStream.ToArray(), "application/zip", "screenshots.zip");
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            logger.LogError("Error when receiving screenshots", e);
+            logger.LogError(ex, $"An error occurred while retrieving screenshots for GameInfoId: {gameInfoId}");
+            return StatusCode(500, "Internal server error");
         }
-        return BadRequest();
-    }
+    }    
 }

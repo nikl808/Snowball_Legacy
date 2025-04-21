@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -31,6 +32,11 @@ builder.Host.UseSerilog((context, configuration) => configuration
 
 var app = builder.Build();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 using var scope = app.Services.CreateScope();
 var contextTypes = builder.Services
                                 .Where(sd => sd.ServiceType.IsAssignableTo(typeof(DbContext)))
@@ -41,11 +47,12 @@ foreach (var contextType in contextTypes)
     var dbContext = (DbContext)scope.ServiceProvider
                                     .GetRequiredService(contextType);
 
-    dbContext.Database.Migrate();
+    if(!dbContext.Database.GetPendingMigrations().Any())
+        dbContext.Database.Migrate();
 }
 
 // Configure the HTTP request pipeline.
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.MapControllers();
 app.UseCors("CorsPolicy");
