@@ -1,6 +1,9 @@
 <p-card class="!text-lg !font-serif">
   <ng-template #title>
-    <div class="!font-bold !text-xl !text-center mb-2">{{gameInfo?.name}}</div>
+    <div class="!font-bold !text-xl !text-center mb-2">
+      <p-skeleton *ngIf="!gameInfo" width="200px" height="30px"/>
+      <span *ngIf="gameInfo">{{gameInfo.name}}</span>
+    </div>
     <div class="h-[1px] bg-red-500 w-[100%] mb-6"></div>
   </ng-template>
   <div class="!flex !justify-center">
@@ -9,20 +12,40 @@
         <td style="width:900px;vertical-align:top">
           <div class="!grid !grid-rows-5 !gap-3 !auto-cols-max !grid-flow-col mb-6">
             <div class="!row-span-5">
-              <p-image [src]="titlePicture" alt="Image" width="200" [preview]="true" />
+              <p-skeleton *ngIf="!titlePicture" width="200px" height="200px" />
+              <p-image *ngIf="titlePicture" [src]="titlePicture" alt="Image" width="200" [preview]="true" />
             </div>
-            <div class="!font-bold">{{'common.developer' | translate}}: {{gameInfo?.developer}}</div>
-            <div class="!font-bold">{{'common.releaseDate' | translate}}: {{gameInfo?.releaseDate}}</div>
-            <div class="!font-bold">{{'common.genre' | translate}}: {{gameInfo?.genre}}</div>
-            <div class="!font-bold">{{'common.discNum' | translate}}: {{gameInfo?.discNumber}}</div>
-            <div class="!font-bold">{{'common.additionalGameFiles' | translate}}: <p-button icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" [loading]="fileDownload"/></div>
+            <div class="!font-bold">
+              {{'common.developer' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
+              <span *ngIf="gameInfo">{{gameInfo.developer}}</span>
+            </div>
+            <div class="!font-bold">
+              {{'common.releaseDate' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
+              <span *ngIf="gameInfo">{{gameInfo.releaseDate}}</span>
+            </div>
+            <div class="!font-bold">
+              {{'common.genre' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
+              <span *ngIf="gameInfo">{{gameInfo.genre}}</span>
+            </div>
+            <div class="!font-bold">
+              {{'common.discNum' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
+              <span *ngIf="gameInfo">{{gameInfo.discNumber}}</span>
+            </div>
+            <div class="!font-bold">
+              {{'common.additionalGameFiles' | translate}}: <p-skeleton *ngIf="!gameInfo" width="25px" height="25px" />
+              <p-button *ngIf="gameInfo" icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" [loading]="fileDownload" />
+            </div>
           </div>
           <div class="!font-bold !text-xl mb-3">{{'common.gameDescription' | translate}}:</div>
-          <p class="!text-lg">{{gameInfo?.description}}</p>
+          <p-skeleton *ngIf="!gameInfo" width="100%" height="100px"/>
+          <p *ngIf="gameInfo" class="!text-lg">{{gameInfo.description}}</p>
           <div class="!font-bold !text-xl !text-center mb-3">{{'common.screenshots' | translate}}:</div>
           <div class="!flex !flex-row !justify-center !content-center !gap-3">
-            <ng-container *ngFor="let screen of screenshots">
-              <p-image src="{{'data:image/jpeg;base64,'+ screen}}" alt="Image" width="200" [preview]="true" />
+            <p-skeleton *ngIf="!screenshots || screenshots.length === 0" width="200px" height="200px"/>
+            <ng-container *ngIf="screenshots && screenshots.length > 0">
+              <ng-container *ngFor="let screen of screenshots">
+                <p-image src="{{'data:image/jpeg;base64,'+ screen}}" alt="Image" width="200" [preview]="true" />
+              </ng-container>
             </ng-container>
           </div>
         </td>

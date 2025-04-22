@@ -13,6 +13,7 @@ import { DataStoreService } from '../../../services/data-store.service';
 import { HttpEventType } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: 'app-topbar',
@@ -24,6 +25,13 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class AppTopbar implements OnInit {
   private destroy$ = new Subject<void>();
+  private msgConfirm: string = '';
+  private msgDelete: string = '';
+  private msgDelQuestion: string = '';
+  private msgGameDeleted: string = '';
+  private msgCancel: string = '';
+  private msgSuccess: string = '';
+  private msgError: string = '';
 
   items!: MenuItem[];
   currentGameId: string = '';
@@ -31,9 +39,17 @@ export class AppTopbar implements OnInit {
     public dataStore: DataStoreService,
     private confirmationService: ConfirmationService,
     private apiData: ApiDataService,
-    private messageService: MessageService) { }
+    private messageService: MessageService,
+    private translate: TranslateService) { }
 
   ngOnInit(): void {
+    this.translate.get('common.confirm').subscribe((res: any) => { this.msgConfirm = res });
+    this.translate.get('common.delete').subscribe((res: any) => { this.msgDelete = res });
+    this.translate.get('common.delQuestion').subscribe((res: any) => { this.msgDelQuestion = res });
+    this.translate.get('common.gameDeleted').subscribe((res: any) => { this.msgGameDeleted = res });
+    this.translate.get('common.success').subscribe((res: any) => { this.msgSuccess = res });
+    this.translate.get('common.cancel').subscribe((res: any) => { this.msgCancel = res });
+    this.translate.get('common.error').subscribe((res: any) => { this.msgError = res });
     this.dataStore.activeGameSubjectChanges$
       .pipe(takeUntil(this.destroy$))
       .subscribe(id => this.currentGameId = id);
@@ -42,18 +58,18 @@ export class AppTopbar implements OnInit {
   deleteGame(event: Event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Вы уверены что хотите продолжить?',
-      header: 'Удалить?',
+      message: this.msgConfirm,
+      header: this.msgDelQuestion,
       closable: true,
       closeOnEscape: true,
       icon: 'pi pi-info-circle',
-      rejectLabel: 'Отмена',
+      rejectLabel: this.msgCancel,
       rejectButtonProps: {
-        label: 'Отмена',
+        label: this.msgCancel,
         severity: 'secondary'
       },
       acceptButtonProps: {
-        label: 'Удалить',
+        label: this.msgDelete,
         severity: 'Danger'
       },
       accept: () => {
@@ -63,8 +79,8 @@ export class AppTopbar implements OnInit {
               if (event.ok)
                 this.messageService.add({
                   severity: 'success',
-                  summary: 'Выполнено',
-                  detail: 'Игра удалена',
+                  summary: this.msgSuccess,
+                  detail: this.msgGameDeleted,
                   sticky: true
                 });
               this.dataStore._updateGameListSubject.next(true);
@@ -73,7 +89,7 @@ export class AppTopbar implements OnInit {
           error: (err) => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Ошибка',
+              summary: this.msgError,
               detail: err.message,
               sticky: true
             });

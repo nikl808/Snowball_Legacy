@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core'
 import { GameVM } from '../models/viewModels/game.vm';
 import { Game } from '../models/game';
+import { GamesGenres } from '../models/gamesGenres';
 import { catchError, Observable, of } from 'rxjs';
 import { GameInfo } from '../models/gameInfo';
 
@@ -12,6 +13,10 @@ export class ApiDataService {
   private readonly headers: HttpHeaders;
   constructor(private http: HttpClient) {
     this.headers = new HttpHeaders({ 'Access-Control-Allow-Origin': '*' });
+  }
+
+  public getGamesGenresFromJson() {
+    return this.get<GamesGenres>("/genres.json", "getGamesGenresFromJson");
   }
 
   getGames() {
