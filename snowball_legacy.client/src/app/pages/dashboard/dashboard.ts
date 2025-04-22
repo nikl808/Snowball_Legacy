@@ -24,6 +24,9 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.dataStore.activeGameSubjectChanges$.subscribe(gameId => {
+      //Clear fields
+      this.clearFields();
+
       this.gameId = gameId;
       this.apiData.getGameInfo(gameId).subscribe({
         next: info => {
@@ -67,12 +70,20 @@ export class Dashboard implements OnInit {
   }
 
   getAdditionalFiles() {
+    this.fileDownload = true;
     this.apiData.getAdditionalGameFiles(this.gameId).subscribe({
       next: zip => {
-        this.fileDownload = !this.fileDownload;
         fs.saveAs(zip, "files.zip");
       },
       complete: () => { this.fileDownload = !this.fileDownload; }
     });
+  }
+
+  private clearFields() {
+    this.gameId = '';
+    this.gameInfo = undefined;
+    this.titlePicture = undefined;
+    this.screenshots = [];
+    this.fileDownload = false;
   }
 }

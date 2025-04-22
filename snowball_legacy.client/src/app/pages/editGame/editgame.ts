@@ -8,6 +8,7 @@ import { GameVM } from "../../models/viewModels/game.vm";
 import { DataStoreService } from "../../services/data-store.service";
 import { MessageService } from "primeng/api";
 import { HttpEventType } from "@angular/common/http";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: 'app-edit-game',
@@ -22,39 +23,52 @@ export class EditGame {
   @ViewChild('screens') screenFiles: FileUpload | undefined;
   @ViewChild('additional') additionalFiles: FileUpload | undefined;
 
+  private msgGameUpdated: string = '';
+  private msgSuccess: string = '';
+  private msgError: string = '';
+
   editGameForm!: FormGroup;
   showEdit: boolean = false;
   submitted: boolean = false;
   loading: boolean = false;
-
-  genres: string[] = ["Стратегия", "3d-action"];
-  selectedGenre: string = '';
+  genres: string[] = [];
 
   get controls() {
     return this.editGameForm.controls;
   }
 
-  constructor(public dataStore: DataStoreService, private apiData: ApiDataService, private messageService: MessageService) {
+  constructor(public dataStore: DataStoreService, private apiData: ApiDataService,
+    private messageService: MessageService, private translate: TranslateService) {
+    this.translate.get('common.gameUpdated').subscribe((res: any) => { this.msgGameUpdated = res });
+    this.translate.get('common.success').subscribe((res: any) => { this.msgSuccess = res });
+    this.translate.get('common.error').subscribe((res: any) => { this.msgError = res });
+    this.apiData
+      .getGamesGenresFromJson().subscribe({
+        next: values => {
+          this.genres = values.genres;
+        }
+      });
     this.editGameForm = new FormGroup({
       gameName: new FormControl('', [Validators.required]),
       developer: new FormControl('', [Validators.required]),
       gamedescr: new FormControl('', [Validators.required]),
       releasedate: new FormControl('', [Validators.required]),
-      discnum: new FormControl('', [Validators.required])
+      discnum: new FormControl('', [Validators.required]),
+      selectGenre: new FormControl('')
     })
   }
 
   showEditDialog() {
     this.apiData.getGameInfo(this.gameId).subscribe(async info => {
+      let index = this.genres.findIndex((item: string) => item === info.genre);
       this.editGameForm.setValue({
         gameName: info.name,
         developer: info.developer,
         gamedescr: info.description,
         releasedate: new Date(info.releaseDate).toLocaleDateString(),
-        discnum: info.discNumber
+        discnum: info.discNumber,
+        selectGenre: this.genres[index]
       });
-      let index = this.genres.findIndex((item: string) => item === info.genre);
-      this.selectedGenre = this.genres[index];
       this.setTitlePicture(info.id);
       this.setAdditionalFiles(this.gameId);
       await this.setScreenshots(info.id);
@@ -67,11 +81,12 @@ export class EditGame {
     if (this.controls.invalid) {
       return;
     }
+    this.loading = true;
     let updateGame: GameVM = {
       id: this.gameId,
       name: this.editGameForm.value.gameName ?? '',
       developer: this.editGameForm.value.developer ?? '',
-      genre: this.selectedGenre,
+      genre: this.editGameForm.value.selectGenre,
       releaseDate: this.editGameForm.value.releasedate,
       description: this.editGameForm.value.gamedescr ?? '',
       discNumber: this.editGameForm.value.discnum ?? '',
@@ -87,8 +102,8 @@ export class EditGame {
           if (event.ok)
             this.messageService.add({
               severity: 'success',
-              summary: 'Выполнено',
-              detail: 'Игра обновлена',
+              summary: this.msgSuccess,
+              detail: this.msgGameUpdated,
               sticky: true
             });
           this.dataStore._activeGameSubject.next(this.gameId);
@@ -98,7 +113,7 @@ export class EditGame {
         this.loading = false
         this.messageService.add({
           severity: 'error',
-          summary: 'Ошибка',
+          summary: this.msgError,
           detail: err.message,
           sticky: true
         });

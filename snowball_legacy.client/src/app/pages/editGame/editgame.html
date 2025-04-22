@@ -44,20 +44,22 @@
         <!--Genre-->
         <div>
           <label class="block text-black-50 !font-bold font-medium mb-2">{{'common.genre' | translate}}</label>
-          <p-dropdown class="form-control w-full" appendTo="body" [options]="genres" [(ngModel)]="selectedGenre" />
-        </div>
-        <!--Disc num-->
-        <div>
-          <label class="block text-black-50 !font-bold font-medium mb-2">{{'common.discNum' | translate}}</label>
-          <p-inputnumber class="form-control w-full" formControlName="discnum"
-                         [ngClass]="{ 'is-invalid': submitted && controls.discnum.errors}" required />
-          <div *ngIf="submitted && controls.discnum.errors" class="invalid-feedback">
-            <div *ngIf="controls.discnum.errors?.required">
-              <p-message severity="error" variant="simple" size="small">{{'common.required' | translate}}</p-message>
+          <div *ngIf="genres.length > 0">
+            <p-select class="form-control w-full" formControlName="selectGenre" appendTo="body" [options]="genres"/>
+          </div>
+          </div>
+          <!--Disc num-->
+          <div>
+            <label class="block text-black-50 !font-bold font-medium mb-2">{{'common.discNum' | translate}}</label>
+            <p-inputnumber class="form-control w-full" formControlName="discnum"
+                           [ngClass]="{ 'is-invalid': submitted && controls.discnum.errors}" required />
+            <div *ngIf="submitted && controls.discnum.errors" class="invalid-feedback">
+              <div *ngIf="controls.discnum.errors?.required">
+                <p-message severity="error" variant="simple" size="small">{{'common.required' | translate}}</p-message>
+              </div>
             </div>
           </div>
         </div>
-      </div>
     </div>
     <!--Description-->
     <div class="form-group mb-3">

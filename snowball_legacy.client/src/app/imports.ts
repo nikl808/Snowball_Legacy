@@ -21,6 +21,8 @@ import { PanelModule } from 'primeng/panel';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from "primeng/api";
 import { ListboxModule } from 'primeng/listbox';
+import { SelectModule } from 'primeng/select';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @NgModule({
   imports: [
@@ -30,7 +32,8 @@ import { ListboxModule } from 'primeng/listbox';
     FileUploadModule, TextareaModule, ProgressBarModule,
     BadgeModule, OverlayBadgeModule, InputNumberModule,
     DropdownModule, InputMaskModule, CardModule,
-    ImageModule, PanelModule, ToastModule, ListboxModule
+    ImageModule, PanelModule, ToastModule, ListboxModule,
+    SelectModule, SkeletonModule
   ],
   exports: [
     TranslateModule, FormsModule, InputTextModule,
@@ -39,7 +42,8 @@ import { ListboxModule } from 'primeng/listbox';
     FileUploadModule, TextareaModule, ProgressBarModule,
     BadgeModule, OverlayBadgeModule, InputNumberModule,
     DropdownModule, InputMaskModule, CardModule,
-    ImageModule, PanelModule, ToastModule, ListboxModule
+    ImageModule, PanelModule, ToastModule, ListboxModule,
+    SelectModule, SkeletonModule
   ],
   providers: [MessageService]
 })
