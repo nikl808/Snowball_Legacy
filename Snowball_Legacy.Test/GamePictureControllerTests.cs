@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Snowball_Legacy.Server.Contexts;
@@ -35,7 +35,7 @@ public class GamePictureControllerTests
         var result = _controller.GetTitlePicture(1);
 
         // Assert
-        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+        var notFoundResult = Assert.IsType<NotFound<string>>(result);
         Assert.Equal("No title picture found for GameInfoId: 1", notFoundResult.Value);
     }
 
@@ -55,7 +55,7 @@ public class GamePictureControllerTests
         var result = _controller.GetTitlePicture(1);
 
         // Assert
-        var fileResult = Assert.IsType<FileContentResult>(result);
+        var fileResult = Assert.IsType<FileContentHttpResult>(result);
         Assert.Equal("image/jpeg", fileResult.ContentType);
         Assert.Equal(pictureData, fileResult.FileContents);
     }
@@ -67,7 +67,7 @@ public class GamePictureControllerTests
         var result = _controller.GetScreenshots(1);
 
         // Assert
-        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+        var notFoundResult = Assert.IsType<NotFound<string>>(result);
         Assert.Equal("No screenshots found for GameInfoId: 1", notFoundResult.Value);
     }
 
@@ -88,10 +88,11 @@ public class GamePictureControllerTests
         var result = _controller.GetScreenshots(1);
 
         // Assert
-        var fileResult = Assert.IsType<FileContentResult>(result);
+        var fileResult = Assert.IsType<FileContentHttpResult>(result);
+
         Assert.Equal("application/zip", fileResult.ContentType);
 
-        using var memoryStream = new MemoryStream(fileResult.FileContents);
+        using var memoryStream = new MemoryStream(fileResult.FileContents.ToArray());
         using var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
 
         Assert.Equal(2, zipArchive.Entries.Count);

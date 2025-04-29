@@ -15,7 +15,7 @@ public class GamePictureController(DataContext context,
     /// <param name="gameInfoId">GameInfoId</param>
     /// <returns>Picture File</returns>
     [HttpGet("title/{gameInfoId:int}", Name = "GetTitlePicture")]
-    public ActionResult GetTitlePicture([FromRoute] int gameInfoId)
+    public IResult GetTitlePicture([FromRoute] int gameInfoId)
     {
         try
         {
@@ -24,16 +24,16 @@ public class GamePictureController(DataContext context,
             if (picture?.Picture is null)
             {
                 logger.LogWarning($"No title picture found for GameInfoId: {gameInfoId}");
-                return NotFound($"No title picture found for GameInfoId: {gameInfoId}");
+                return Results.NotFound($"No title picture found for GameInfoId: {gameInfoId}");
             }
 
             //Return file as jpeg
-            return File(picture.Picture, "image/jpeg");
+            return Results.File(picture.Picture, "image/jpeg");
         }
         catch (Exception e)
         {
             logger.LogError(e, $"An error occurred while retrieving the title picture for GameInfoId: {gameInfoId}");
-            return StatusCode(500, "Internal server error");
+            return Results.StatusCode(500);
         }
     }
 
@@ -44,7 +44,7 @@ public class GamePictureController(DataContext context,
     /// <param name="gameInfoId">GameInfoId</param>
     /// <returns>zip archive</returns>
     [HttpGet("screenshots/{gameInfoId:int}", Name = "GetScreenshots")]
-    public IActionResult GetScreenshots([FromRoute] int gameInfoId)
+    public IResult GetScreenshots([FromRoute] int gameInfoId)
     {
         try
         {
@@ -56,7 +56,7 @@ public class GamePictureController(DataContext context,
             if (!screenshots.Any())
             {
                 logger.LogWarning($"No screenshots found for GameInfoId: {gameInfoId}");
-                return NotFound($"No screenshots found for GameInfoId: {gameInfoId}");
+                return Results.NotFound($"No screenshots found for GameInfoId: {gameInfoId}");
             }
 
             // Create zip-archive
@@ -78,12 +78,12 @@ public class GamePictureController(DataContext context,
             }
 
             //Return zip-archive
-            return File(memoryStream.ToArray(), "application/zip", "screenshots.zip");
+            return Results.File(memoryStream.ToArray(), "application/zip", "screenshots.zip");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"An error occurred while retrieving screenshots for GameInfoId: {gameInfoId}");
-            return StatusCode(500, "Internal server error");
+            return Results.StatusCode(500);
         }
     }    
 }

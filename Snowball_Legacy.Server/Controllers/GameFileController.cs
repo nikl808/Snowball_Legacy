@@ -14,7 +14,7 @@ public class GameFileController(DataContext context,
     /// <param name="gameId">GameId</param>
     /// <returns>zip archive</returns>
     [HttpGet("archive/{gameId}")]
-    public IActionResult GetAdditionalFiles(int gameId)
+    public IResult GetAdditionalFiles(int gameId)
     {
         try
         {
@@ -24,16 +24,16 @@ public class GameFileController(DataContext context,
             if (file?.File is null)
             {
                 logger.LogWarning($"No additional files found for GameId: {gameId}");
-                return NotFound($"No additional files found for GameId: {gameId}");
+                return Results.NotFound($"No additional files found for GameId: {gameId}");
             }
 
             //Return file as zip
-            return File(file.File, "application/zip", "files.zip");
+            return Results.File(file.File, "application/zip", "files.zip");
         }
         catch (Exception e)
         {
             logger.LogError(e, $"An error occurred while retrieving additional files for GameId: {gameId}");
-            return StatusCode(500, "Internal server error");
+            return Results.StatusCode(500);
         }
     }
 }

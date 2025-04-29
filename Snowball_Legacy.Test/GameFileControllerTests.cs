@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Snowball_Legacy.Server.Contexts;
 using Snowball_Legacy.Server.Controllers;
 using Snowball_Legacy.Server.Models;
@@ -35,7 +35,7 @@ public class GameFileControllerTests
         var result = _controller.GetAdditionalFiles(1);
 
         // Assert
-        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+        var notFoundResult = Assert.IsType<NotFound<string>>(result);
         Assert.Equal("No additional files found for GameId: 1", notFoundResult.Value);
     }
 
@@ -55,7 +55,7 @@ public class GameFileControllerTests
         var result = _controller.GetAdditionalFiles(1);
 
         // Assert
-        var fileResult = Assert.IsType<FileContentResult>(result);
+        var fileResult = Assert.IsType<FileContentHttpResult>(result);
         Assert.Equal("application/zip", fileResult.ContentType);
         Assert.Equal("files.zip", fileResult.FileDownloadName);
         Assert.Equal(fileData, fileResult.FileContents);
