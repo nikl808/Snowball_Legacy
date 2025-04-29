@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using Snowball_Legacy.Server.Contexts;
+using Snowball_Legacy.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddScoped<GameDataService>();
 
 //Add Database context
 var dbConnectionStrings = builder.Configuration.GetConnectionString("GameDataConnection");
