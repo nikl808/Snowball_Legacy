@@ -17,11 +17,9 @@ public class GameController(GameDataService gameDataService) : ControllerBase
     /// <returns>List of GameDto</returns>
     [HttpGet("list", Name = "GetListOfGames")]
     public async Task<IResult> GetListOfGames() =>
-        (await _gameDataService.GetListOfGames()).Match(
-            onSuccess: Results.Ok,
-            onFailure: error => CheckError(error).Item2);
-
-
+        (await ProcessOperationTimeout(_gameDataService.GetListOfGames(),15)).Match(
+            onSuccess: Results.Ok, onFailure: error => CheckError(error).Item2);
+    
     /// <summary>
     /// Getting the game
     /// </summary>
@@ -29,7 +27,7 @@ public class GameController(GameDataService gameDataService) : ControllerBase
     /// <returns>GameInfoDto</returns>
     [HttpGet("info/{gameId}", Name = "GetGameInfo")]
     public async Task<IResult> GetGameInfo(int gameId) =>
-        (await _gameDataService.GetGameInfo(gameId)).Match(
+        (await ProcessOperationTimeout(_gameDataService.GetGameInfo(gameId),15)).Match(
             onSuccess: Results.Ok,
             onFailure: error => CheckError(error).Item2);
 
@@ -41,7 +39,7 @@ public class GameController(GameDataService gameDataService) : ControllerBase
     [HttpPost]
     [DisableRequestSizeLimit]
     public async Task<IResult> AddGame([FromForm] GameViewModel vm) =>
-        (await _gameDataService.AddGame(vm)).Match(
+        (await ProcessOperationTimeout(_gameDataService.AddGame(vm),15)).Match(
             onSuccess: Results.Ok,
             onFailure: error => CheckError(error).Item2);
 
@@ -53,7 +51,7 @@ public class GameController(GameDataService gameDataService) : ControllerBase
     [HttpPost("update", Name = "UpdateGame")]
     [DisableRequestSizeLimit]
     public async Task<IResult> UpdateGame([FromForm] GameViewModel vm) =>
-        (await _gameDataService.UpdateGame(vm)).Match(
+        (await ProcessOperationTimeout(_gameDataService.UpdateGame(vm), 15)).Match(
             onSuccess: Results.Ok,
             onFailure: error => CheckError(error).Item2);
 
@@ -64,7 +62,7 @@ public class GameController(GameDataService gameDataService) : ControllerBase
     /// <returns>Ok result or error</returns>
     [HttpDelete]
     public async Task<IResult> DeleteGame([FromHeader] int gameId) =>
-        (await _gameDataService.DeleteGame(gameId)).Match(
+        (await ProcessOperationTimeout(_gameDataService.DeleteGame(gameId), 15)).Match(
             onSuccess: Results.Ok,
             onFailure: error => CheckError(error).Item2);
 
@@ -76,4 +74,13 @@ public class GameController(GameDataService gameDataService) : ControllerBase
             ErrorType.InternalServerError => (error, Results.StatusCode(500)),
             _ => (error, Results.Problem(error.Error))
         };
+
+    private async Task<T> ProcessOperationTimeout<T>(Task<T> task, int timeoutSec)
+    {
+        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSec));
+        var opDelayTask = Task.Delay(Timeout.Infinite, cts.Token);
+        var result = await Task.WhenAny(task, opDelayTask);
+        if (result == opDelayTask) return (T)Results.Problem("operation timeout");
+        return await task;
+    }
 }
