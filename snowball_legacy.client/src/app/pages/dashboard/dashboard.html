@@ -1,6 +1,6 @@
 <p-card class="!text-lg !font-serif">
   <ng-template #title>
-    <div class="!font-bold !text-xl !text-center mb-2">
+    <div class="!flex !font-bold !text-xl !text-center !justify-center mb-2">
       <p-skeleton *ngIf="!gameInfo" width="200px" height="30px"/>
       <span *ngIf="gameInfo">{{gameInfo.name}}</span>
     </div>
@@ -10,33 +10,41 @@
     <table width="950" cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td style="width:900px;vertical-align:top">
-          <div class="!grid !grid-rows-5 !gap-3 !auto-cols-max !grid-flow-col mb-6">
-            <div class="!row-span-5">
-              <p-skeleton *ngIf="!titlePicture" width="200px" height="200px" />
-              <p-image *ngIf="titlePicture" [src]="titlePicture" alt="Image" width="200" [preview]="true" />
+          <div class="!grid !grid-rows-7 !gap-3 !auto-cols-max !grid-flow-col mb-6">
+            <div class="!row-span-7">
+              <p-skeleton *ngIf="!titlePicture" width="300px" height="300px" />
+              <p-image *ngIf="titlePicture" [src]="titlePicture" alt="Image" width="270" [preview]="true" />
             </div>
-            <div class="!font-bold">
-              {{'common.developer' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
+            <div class="!flex !flex-row">
+              <span class="!font-bold">{{'common.origin' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+              <span *ngIf="gameInfo">{{gameInfo.origin}}</span>
+            </div>
+            <div class="!flex !flex-row">
+              <span class="!font-bold">{{'common.developer' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
               <span *ngIf="gameInfo">{{gameInfo.developer}}</span>
             </div>
-            <div class="!font-bold">
-              {{'common.releaseDate' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
-              <span *ngIf="gameInfo">{{gameInfo.releaseDate}}</span>
+            <div class="!flex !flex-row">
+              <span class="!font-bold">{{'common.releaseDate' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+              <span *ngIf="gameInfo">{{gameInfo.releaseDate | date:'MM-dd-yyyy'}}</span>
             </div>
-            <div class="!font-bold">
-              {{'common.genre' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
+            <div class="!flex !flex-row">
+              <span class="!font-bold">{{'common.genre' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
               <span *ngIf="gameInfo">{{gameInfo.genre}}</span>
             </div>
-            <div class="!font-bold">
-              {{'common.discNum' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
+            <div *ngIf="gameInfo?.fromSeries != null" class="!flex !flex-row">
+              <span class="!font-bold">{{'common.fromSeries' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+              <span *ngIf="gameInfo">{{gameInfo.fromSeries}}</span>
+            </div>
+            <div class="!flex !flex-row">
+              <span class="!font-bold">{{'common.discNum' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
               <span *ngIf="gameInfo">{{gameInfo.discNumber}}</span>
             </div>
-            <div class="!font-bold">
-              {{'common.additionalGameFiles' | translate}}: <p-skeleton *ngIf="!gameInfo" width="25px" height="25px" />
+            <div *ngIf="gameInfo?.isAdditionalFiles" class="!flex !flex-row !font-bold">
+              {{'common.additionalGameFiles' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="25px" height="25px" />
               <p-button *ngIf="gameInfo" icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" [loading]="fileDownload" />
             </div>
           </div>
-          <div class="!font-bold !text-xl mb-3">{{'common.gameDescription' | translate}}:</div>
+          <div class="!font-bold !text-xl mb-3  !text-center">{{'common.gameDescription' | translate}}:</div>
           <p-skeleton *ngIf="!gameInfo" width="100%" height="100px"/>
           <p *ngIf="gameInfo" class="!text-lg">{{gameInfo.description}}</p>
           <div class="!font-bold !text-xl !text-center mb-3">{{'common.screenshots' | translate}}:</div>

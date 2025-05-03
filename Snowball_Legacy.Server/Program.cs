@@ -49,7 +49,7 @@ foreach (var contextType in contextTypes)
     var dbContext = (DbContext)scope.ServiceProvider
                                     .GetRequiredService(contextType);
 
-    if(!dbContext.Database.GetPendingMigrations().Any())
+    if(dbContext.Database.GetPendingMigrations().Any())
         dbContext.Database.Migrate();
 }
 

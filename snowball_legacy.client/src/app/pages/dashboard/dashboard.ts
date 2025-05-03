@@ -30,7 +30,7 @@ export class Dashboard implements OnInit {
       this.gameId = gameId;
       this.apiData.getGameInfo(gameId).subscribe({
         next: info => {
-          this.gameInfo = info
+          this.gameInfo = info;
           if (this.gameInfo?.id != undefined) {
             this.apiData.getGameTitlePicture(this.gameInfo?.id).subscribe({
               next: blob => {

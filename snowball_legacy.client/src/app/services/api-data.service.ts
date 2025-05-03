@@ -88,8 +88,10 @@ export class ApiDataService {
     formData.append('Id', game.id == '' ? '0' : game.id);
     formData.append('Developer', game.developer);
     formData.append('Name', game.name);
+    formData.append('Origin', game.origin);
     formData.append('Genre', game.genre);
     formData.append('ReleaseDate', game.releaseDate);
+    formData.append('FromSeries', game.fromSeries ?? '');
     formData.append('Description', game.description)
     formData.append('DiscNumber', game.discNumber?.toString());
     formData.append('IsAdditionalFiles', game.isAdditionalFiles ? '1' : '0')

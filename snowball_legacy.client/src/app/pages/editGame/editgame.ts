@@ -50,10 +50,12 @@ export class EditGame {
       });
     this.editGameForm = new FormGroup({
       gameName: new FormControl('', [Validators.required]),
+      originName: new FormControl('', [Validators.required]),
       developer: new FormControl('', [Validators.required]),
       gamedescr: new FormControl('', [Validators.required]),
       releasedate: new FormControl('', [Validators.required]),
       discnum: new FormControl('', [Validators.required]),
+      fromSeries: new FormControl(''),
       selectGenre: new FormControl('')
     })
   }
@@ -63,8 +65,10 @@ export class EditGame {
       let index = this.genres.findIndex((item: string) => item === info.genre);
       this.editGameForm.setValue({
         gameName: info.name,
+        originName: info.origin,
         developer: info.developer,
         gamedescr: info.description,
+        fromSeries: info.fromSeries,
         releasedate: new Date(info.releaseDate).toLocaleDateString(),
         discnum: info.discNumber,
         selectGenre: this.genres[index]
@@ -85,10 +89,12 @@ export class EditGame {
     let updateGame: GameVM = {
       id: this.gameId,
       name: this.editGameForm.value.gameName ?? '',
+      origin: this.editGameForm.value.originName ?? '',
       developer: this.editGameForm.value.developer ?? '',
       genre: this.editGameForm.value.selectGenre,
       releaseDate: this.editGameForm.value.releasedate,
       description: this.editGameForm.value.gamedescr ?? '',
+      fromSeries: this.editGameForm.value.fromSeries ?? '', 
       discNumber: this.editGameForm.value.discnum ?? '',
       isAdditionalFiles: this.additionalFiles != undefined ? this.additionalFiles?.files.length > 0 : false,
       titlePicture: this.titleFile?.files[0],

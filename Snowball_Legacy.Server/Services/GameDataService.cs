@@ -20,7 +20,8 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
                 .Select(g => new GameDto
                 {
                     Id = g.Id,
-                    Name = g.Name
+                    Name = g.Name,
+                    Origin = g.Origin
                 }).ToListAsync();
             return games.Any() ? games : Result<List<GameDto>>.NotFound("No games found.");
         }
@@ -42,9 +43,11 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
             {
                 Id = game.GameInfo.Id,
                 Name = game.Name,
+                Origin = game.Origin,
                 Developer = game.GameInfo.Developer,
                 Genre = game.GameInfo.Genre,
                 ReleaseDate = game.GameInfo.ReleaseDate,
+                FromSeries = game.GameInfo.FromSeries,
                 IsAdditionalFiles = game.GameInfo.IsAdditionalFiles,
                 DiscNumber = game.GameInfo.DiskNumber,
                 Description = game.GameInfo.Description
@@ -61,7 +64,7 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
         try
         {
             // Create a game entity
-            var game = new Game { Name = vm.Name };
+            var game = new Game { Name = vm.Name, Origin = vm.Origin };
             var gameInfo = ProccessGameInfo(game, vm);
             game.GameInfo = gameInfo;
 
@@ -167,6 +170,7 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
             Developer = vm.Developer,
             IsAdditionalFiles = Convert.ToBoolean(vm.IsAdditionalFiles),
             Description = vm.Description,
+            FromSeries = vm.FromSeries,
             Genre = vm.Genre,
             DiskNumber = vm.DiscNumber,
             ReleaseDate = DateOnly.Parse(DateTime.ParseExact(vm.ReleaseDate, "dd.mm.yyyy", null).ToShortDateString())
@@ -218,6 +222,7 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
         gameInfo.Developer = vm.Developer;
         gameInfo.IsAdditionalFiles = Convert.ToBoolean(vm.IsAdditionalFiles);
         gameInfo.Description = vm.Description;
+        gameInfo.FromSeries = vm.FromSeries;
         gameInfo.Genre = vm.Genre;
         gameInfo.DiskNumber = vm.DiscNumber;
         gameInfo.ReleaseDate = DateOnly.Parse(vm.ReleaseDate);
