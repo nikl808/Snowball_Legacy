@@ -48,7 +48,7 @@ public class GameController(GameDataService gameDataService) : ControllerBase
     /// </summary>
     /// <param name="vm">GameViewModel</param>
     /// <returns>Ok result or error</returns>
-    [HttpPost("update", Name = "UpdateGame")]
+    [HttpPut("update")]
     [DisableRequestSizeLimit]
     public async Task<IResult> UpdateGame([FromForm] GameViewModel vm) =>
         (await ProcessOperationTimeout(_gameDataService.UpdateGame(vm), 15)).Match(

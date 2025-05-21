@@ -8,7 +8,11 @@
   top: 0;
   width: 100%;
   padding: 0 2rem;
-  background-color: var(--surface-card);
+  border-bottom: 1.5px solid var(--surface-border, #e0e0e0);
+  //background-color: var(--surface-card);
+  background-image: url("../../../public/bar.png");
+  background-repeat: no-repeat;
+  background-size: initial;
   transition: left var(--layout-section-transition-duration);
   display: flex;
   align-items: center;
@@ -39,13 +43,14 @@
 
   .layout-topbar-action {
     display: inline-flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    color: var(--text-color-secondary);
+    //color: var(--text-color-secondary);
     border-radius: 50%;
     width: 2.5rem;
     height: 2.5rem;
-    color: var(--text-color);
+    color: var(--p-amber-50);
     transition: background-color var(--element-transition-duration);
     cursor: pointer;
 
@@ -80,81 +85,86 @@
     display: none;
   }
 
-  .layout-topbar-actions {
+  .layout-topbar-actions,
+  .layout-topbar-menu-content {
     margin-left: auto;
     display: flex;
     gap: 1rem;
-  }
-
-  .layout-topbar-menu-content {
-    display: flex;
-    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .layout-config-menu {
-    display: flex;
+    display: table-row;
     gap: 1rem;
   }
 }
 
-@media (max-width: 991px) {
-    .layout-topbar {
-        padding: 0 2rem;
+@media (max-width: 500px) {
+  .layout-topbar {
+    padding: 0 2rem;
 
-        .layout-topbar-logo-container {
-            width: auto;
-        }
-
-        .layout-menu-button {
-            margin-left: 0;
-            margin-right: 0.5rem;
-        }
-
-        .layout-topbar-menu-button {
-            display: inline-flex;
-        }
-
-        .layout-topbar-menu {
-            position: absolute;
-            background-color: var(--surface-overlay);
-            transform-origin: top;
-            box-shadow:
-                0px 3px 5px rgba(0, 0, 0, 0.02),
-                0px 0px 2px rgba(0, 0, 0, 0.05),
-                0px 1px 4px rgba(0, 0, 0, 0.08);
-            border-radius: var(--content-border-radius);
-            padding: 1rem;
-            right: 2rem;
-            top: 4rem;
-            min-width: 15rem;
-            border: 1px solid var(--surface-border);
-
-            .layout-topbar-menu-content {
-                gap: 0.5rem;
-            }
-
-            .layout-topbar-action {
-                display: flex;
-                width: 100%;
-                height: auto;
-                justify-content: flex-start;
-                border-radius: var(--content-border-radius);
-                padding: 0.5rem 1rem;
-
-                i {
-                    font-size: 1rem;
-                    margin-right: 0.5rem;
-                }
-
-                span {
-                    font-weight: medium;
-                    display: block;
-                }
-            }
-        }
-
-        .layout-topbar-menu-content {
-            flex-direction: column;
-        }
+    .layout-topbar-logo-container {
+      width: auto;
     }
+
+    .layout-menu-button {
+      margin-left: 0;
+      margin-right: 0.5rem;
+    }
+
+    .layout-topbar-menu-button {
+      display: inline-flex;
+    }
+
+    .layout-topbar-menu {
+      position: absolute;
+      background-color: var(--surface-overlay);
+      transform-origin: top;
+      box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.02), 0px 0px 2px rgba(0, 0, 0, 0.05), 0px 1px 4px rgba(0, 0, 0, 0.08);
+      border-radius: var(--content-border-radius);
+      padding: 1rem;
+      right: 2rem;
+      top: 4rem;
+      min-width: 15rem;
+      border: 1px solid var(--surface-border);
+
+      .layout-topbar-menu-content {
+        flex-direction: row;
+        gap: 0.5rem;
+      }
+
+      .layout-topbar-action {
+        display: flex;
+        width: 100%;
+        height: auto;
+        justify-content: flex-start;
+        border-radius: var(--content-border-radius);
+        padding: 0.5rem 1rem;
+
+        i {
+          font-size: 1rem;
+          margin-right: 0.5rem;
+        }
+
+        span {
+          font-weight: medium;
+          display: block;
+        }
+      }
+    }
+
+    .layout-topbar-menu-content {
+      flex-direction: column;
+    }
+
+    .layout-topbar-actions,
+    .layout-topbar-menu-content,
+    .layout-config-menu {
+      flex-direction: row;
+      gap: 0.5rem;
+      width: 100%;
+      align-items: stretch;
+    }
+  }
 }

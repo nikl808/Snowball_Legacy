@@ -23,6 +23,8 @@ import { MessageService } from "primeng/api";
 import { ListboxModule } from 'primeng/listbox';
 import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TooltipModule } from 'primeng/tooltip';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 
 @NgModule({
   imports: [
@@ -33,7 +35,7 @@ import { SkeletonModule } from 'primeng/skeleton';
     BadgeModule, OverlayBadgeModule, InputNumberModule,
     DropdownModule, InputMaskModule, CardModule,
     ImageModule, PanelModule, ToastModule, ListboxModule,
-    SelectModule, SkeletonModule
+    SelectModule, SkeletonModule, TooltipModule, ScrollPanelModule
   ],
   exports: [
     TranslateModule, FormsModule, InputTextModule,
@@ -43,7 +45,7 @@ import { SkeletonModule } from 'primeng/skeleton';
     BadgeModule, OverlayBadgeModule, InputNumberModule,
     DropdownModule, InputMaskModule, CardModule,
     ImageModule, PanelModule, ToastModule, ListboxModule,
-    SelectModule, SkeletonModule
+    SelectModule, SkeletonModule, TooltipModule, ScrollPanelModule
   ],
   providers: [MessageService]
 })

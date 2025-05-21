@@ -1,28 +1,31 @@
-<div class="layout-topbar">
+<p-confirmdialog/>
+<div class="!flex layout-topbar">
   <div class="layout-topbar-logo-container">
     <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
       <i class="pi pi-bars"></i>
     </button>
     <a class="layout-topbar-logo" routerLink="/">
-      <img src="{{layoutService.isDarkTheme() ? 'snowball_idi_light' : 'snowball_idi_dark'}}.png" alt="" width="130">
+      <img src="old_snowball.png" alt="" width="160">
     </a>
   </div>
-
   <div class="layout-topbar-actions">
     <p-divider layout="vertical"></p-divider>
     <div class="layout-topbar-menu-content">
-      <app-add-game />
-      <app-edit-game [gameId]="currentGameId"/>
+      <app-add-game/>
+      <app-edit-game [gameId]="currentGameId" />
       <button type="button" (click)="deleteGame($event)" class="layout-topbar-action">
         <i class="pi pi-trash"></i>
       </button>
-      <p-confirmdialog/>
     </div>
     <p-divider layout="vertical"></p-divider>
     <div class="layout-config-menu">
-      <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
-        <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
-      </button>
+      <a class="layout-topbar-action"
+         href="https://github.com/nikl808/Snowball_Legacy"
+         aria-label="Github"
+         target="_blank"
+         rel="noopener">
+        <i class="pi pi-github"></i>
+      </a>
     </div>
   </div>
 </div>

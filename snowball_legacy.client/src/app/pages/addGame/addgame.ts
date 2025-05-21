@@ -14,6 +14,7 @@ import { TranslateService } from "@ngx-translate/core";
   templateUrl: './addgame.html',
   standalone: true,
   imports: [ImportsModule],
+  styles: []
 })
 export class AddGame implements OnInit {
   @ViewChild('title') titleChild: FileUpload | undefined;

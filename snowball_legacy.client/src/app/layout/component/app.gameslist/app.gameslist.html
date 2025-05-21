@@ -1,8 +1,8 @@
-<div class="listbox-item" *ngIf="items.length === 0">{{'common.nogames' | translate}}</div>
-<ul class="listbox-items" *ngIf="items.length > 0">
-  <li class="listbox-item" *ngFor="let item of items; let i = index; trackBy: trackById"
-      [class.activeitem]="activeGame === i"
-      (click)="onItemSelect(item, i)">
-    {{item.name}}
-  </li>
-</ul>
+  <div class="listbox-item" *ngIf="items.length === 0">{{'common.nogames' | translate}}</div>
+  <ul class="listbox-items" *ngIf="items.length > 0">
+    <li class="listbox-item" *ngFor="let item of items; let i = index; trackBy: trackById"
+        [class.activeitem]="item.id.toString() === selectedGameId"
+        (click)="onItemSelect(item, i)">
+      {{item.name}}
+    </li>
+  </ul>

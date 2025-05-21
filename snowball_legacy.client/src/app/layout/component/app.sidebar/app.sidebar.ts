@@ -13,13 +13,18 @@ import { AppGamesList } from '../app.gameslist/app.gameslist';
 })
 export class AppSidebar implements OnInit {
   games: Game[] = [];
+  currentGameId: string = '';
 
-  constructor(private dataService: ApiDataService, private dataStore: DataStoreService) { }
+  constructor(private dataService: ApiDataService,
+    private dataStore: DataStoreService) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.setGameList();
     this.dataStore.updateGameListSubjectChanges$.subscribe(val => {
       this.setGameList();
+    });
+    this.dataStore.activeGameSubjectChanges$.subscribe(id => {
+      this.currentGameId = id;
     });
   }
 
@@ -27,8 +32,10 @@ export class AppSidebar implements OnInit {
     this.dataService.getGames().subscribe({
       next: result => {
         this.games = result;
-        if (this.games.length > 0)
+        this.dataStore._gamesSubject.next(result);
+        if (this.games.length > 0) {
           this.dataStore._activeGameSubject.next(this.games[0].id.toString() ?? '');
+        }
       }
     });
   }

@@ -45,7 +45,7 @@ export class ApiDataService {
   }
 
   updateGame(game: GameVM) {
-    return this.http.post('/api/game/update', this.setFormData(game),
+    return this.http.put('/api/game/update', this.setFormData(game),
       { headers: this.headers, reportProgress: true, observe: 'events', responseType: 'text' });
   }
 

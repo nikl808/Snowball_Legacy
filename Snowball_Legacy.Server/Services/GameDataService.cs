@@ -231,7 +231,7 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
 
     private async Task UpdateTitlePictureAsync(GameInfo gameInfo, IFormFile titlePictureFile)
     {
-        var titlePicture = await _context.GameTitlePicture.FirstOrDefaultAsync(tp => tp.GameInfoId == gameInfo.Id);
+        var titlePicture = await _context.GameTitlePicture.FindAsync(gameInfo.Id);
         if (titlePicture is null)
         {
             titlePicture = new GameTitlePicture
