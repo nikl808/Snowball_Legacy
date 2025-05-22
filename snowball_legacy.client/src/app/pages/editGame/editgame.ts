@@ -73,6 +73,7 @@ export class EditGame {
         discnum: info.discNumber,
         selectGenre: this.genres[index]
       });
+
       this.setTitlePicture(info.id);
       this.setAdditionalFiles(this.gameId);
       await this.setScreenshots(info.id);
@@ -139,7 +140,7 @@ export class EditGame {
       next: blob => {
         var file = new File([blob], "title.jpg", { type: "image/jpeg", lastModified: Date.now() });
         this.titleFile?.clear();
-        this.titleFile?.files.push(file);
+        if (this.titleFile) this.titleFile.files = [file];
       }
     });
   }
@@ -148,7 +149,7 @@ export class EditGame {
     this.apiData.getGameScreenshots(gameInfoId).subscribe({
       next: async screens => {
         const zip = new JSZip();
-        let files = []
+        const files: File[] = [];
         const extractedFiles = await zip.loadAsync(screens);
         for (const key of Object.keys(extractedFiles.files)) {
           const fileData = await extractedFiles.files[key].async('blob');
@@ -164,10 +165,13 @@ export class EditGame {
   private setAdditionalFiles(gameId: string) {
     this.apiData.getAdditionalGameFiles(gameId).subscribe({
       next: zip => {
-        var file = new File([zip], "files.zip", { type: "application/zip", lastModified: Date.now() });
         this.additionalFiles?.clear();
-        this.additionalFiles?.files.push(file);
+        if (zip.size != 0) {
+          var file = new File([zip], "files.zip", { type: "application/zip", lastModified: Date.now() });
+          this.additionalFiles?.files.push(file);
+        }
       }
+      
     });
   }
 }

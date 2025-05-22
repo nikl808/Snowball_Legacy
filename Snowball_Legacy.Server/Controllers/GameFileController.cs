@@ -20,13 +20,8 @@ public class GameFileController(DataContext context,
         {
             var file = context.GameFile.FirstOrDefault(g => g.GameId == gameId);
             
-            // Check if file is null
-            if (file?.File is null)
-            {
-                logger.LogWarning($"No additional files found for GameId: {gameId}");
-                return Results.NotFound($"No additional files found for GameId: {gameId}");
-            }
-
+            if (file?.File is null) return Results.NoContent();
+            
             //Return file as zip
             return Results.File(file.File, "application/zip", "files.zip");
         }

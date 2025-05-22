@@ -116,15 +116,9 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
             game.Name = vm.Name;
             game.GameInfo = UpdateGameInfo(game.GameInfo, vm);
 
-            //Update title picture
-            if (vm.TitlePicture?.Any() is true)
-                await UpdateTitlePictureAsync(game.GameInfo, vm.TitlePicture[0]);
-
-            if (vm.Screenshots is not null)
-                await UpdateScreenshotsAsync(game.GameInfo, vm.Screenshots);
-
-            if (vm.AdditionalFiles is not null)
-                await UpdateAdditionalFilesAsync(game, vm.AdditionalFiles);
+            await UpdateTitlePictureAsync(game.GameInfo, vm.TitlePicture);
+            await UpdateScreenshotsAsync(game.GameInfo, vm.Screenshots);
+            await UpdateAdditionalFilesAsync(game, vm.AdditionalFiles);
 
             await _context.SaveChangesAsync();
             return "Game successfully updated";
@@ -229,59 +223,68 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
         return gameInfo;
     }
 
-    private async Task UpdateTitlePictureAsync(GameInfo gameInfo, IFormFile titlePictureFile)
+    private async Task UpdateTitlePictureAsync(GameInfo gameInfo, List<IFormFile>? titlePictureFile)
     {
-        var titlePicture = await _context.GameTitlePicture.FindAsync(gameInfo.Id);
-        if (titlePicture is null)
+        if (titlePictureFile is not null)
         {
-            titlePicture = new GameTitlePicture
+            var titlePicture = await _context.GameTitlePicture.FindAsync(gameInfo.Id);
+            if (titlePicture is null)
             {
-                GameInfo = gameInfo,
-                Picture = await FileToByteArrayAsync(titlePictureFile)
-            };
-            await _context.GameTitlePicture.AddAsync(titlePicture);
-        }
-        else
-        {
-            titlePicture.Picture = await FileToByteArrayAsync(titlePictureFile);
-            _context.GameTitlePicture.Update(titlePicture);
+                titlePicture = new GameTitlePicture
+                {
+                    GameInfo = gameInfo,
+                    Picture = await FileToByteArrayAsync(titlePictureFile[0])
+                };
+                await _context.GameTitlePicture.AddAsync(titlePicture);
+            }
+            else
+            {
+                titlePicture.Picture = await FileToByteArrayAsync(titlePictureFile[0]);
+                _context.GameTitlePicture.Update(titlePicture);
+            }
         }
     }
 
-    private async Task UpdateScreenshotsAsync(GameInfo gameInfo, List<IFormFile> screenshotFiles)
+    private async Task UpdateScreenshotsAsync(GameInfo gameInfo, List<IFormFile>? screenshotFiles)
     {
         var existingScreenshots = await _context.GameScreenshot
             .Where(gs => gs.GameInfoId == gameInfo.Id)
             .ToListAsync();
 
-        // Delete excess screenshots
-        if (existingScreenshots.Count > screenshotFiles.Count)
-        {
-            var screenshotsToRemove = existingScreenshots.Skip(screenshotFiles.Count).ToList();
-            _context.GameScreenshot.RemoveRange(screenshotsToRemove);
-        }
+        if (screenshotFiles is null || screenshotFiles.Count == 0)
+            _context.GameScreenshot.RemoveRange(existingScreenshots);
 
-        // Update existing screenshots or add new ones
-        for (int i = 0; i < screenshotFiles.Count; i++)
+        else
         {
-            if (i < existingScreenshots.Count)
+            // Delete excess screenshots
+            if (existingScreenshots.Count > screenshotFiles.Count)
             {
-                existingScreenshots[i].Picture = await FileToByteArrayAsync(screenshotFiles[i]);
-                _context.GameScreenshot.Update(existingScreenshots[i]);
+                var screenshotsToRemove = existingScreenshots.Skip(screenshotFiles.Count).ToList();
+                _context.GameScreenshot.RemoveRange(screenshotsToRemove);
             }
-            else
+
+            // Update existing screenshots or add new ones
+            for (int i = 0; i < screenshotFiles.Count; i++)
             {
-                var newScreenshot = new GameScreenshots
+                if (i < existingScreenshots.Count)
                 {
-                    GameInfo = gameInfo,
-                    Picture = await FileToByteArrayAsync(screenshotFiles[i])
-                };
-                await _context.GameScreenshot.AddAsync(newScreenshot);
+                    existingScreenshots[i].Picture = await FileToByteArrayAsync(screenshotFiles[i]);
+                    _context.GameScreenshot.Update(existingScreenshots[i]);
+                }
+                else
+                {
+                    var newScreenshot = new GameScreenshots
+                    {
+                        GameInfo = gameInfo,
+                        Picture = await FileToByteArrayAsync(screenshotFiles[i])
+                    };
+                    await _context.GameScreenshot.AddAsync(newScreenshot);
+                }
             }
         }
     }
 
-    private async Task UpdateAdditionalFilesAsync(Game game, List<IFormFile> additionalFiles)
+    private async Task UpdateAdditionalFilesAsync(Game game, List<IFormFile>? additionalFiles)
     {
         var existingFiles = await _context.GameFile
             .Where(gf => gf.GameId == game.Id)
@@ -290,16 +293,20 @@ public class GameDataService(DataContext context, ILogger<GameDataService> logge
         // Delete excess files
         _context.GameFile.RemoveRange(existingFiles);
 
-        // Add new files
-        var newFiles = new List<GameFile>();
-        foreach (var file in additionalFiles)
+        if (additionalFiles is not null)
         {
-            newFiles.Add(new GameFile
+
+            // Add new files
+            var newFiles = new List<GameFile>();
+            foreach (var file in additionalFiles)
             {
-                Game = game,
-                File = await FileToByteArrayAsync(file)
-            });
+                newFiles.Add(new GameFile
+                {
+                    Game = game,
+                    File = await FileToByteArrayAsync(file)
+                });
+            }
+            await _context.GameFile.AddRangeAsync(newFiles);
         }
-        await _context.GameFile.AddRangeAsync(newFiles);
     }
 }

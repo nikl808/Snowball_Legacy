@@ -2,7 +2,6 @@
   <i class="pi pi-plus"></i>
 </button>
 <p-toast />
-<div class="p-dialog-item">
   <p-dialog header="{{'common.addGame' | translate}}" [(visible)]="showAddDlg"
             [modal]="true" resizable="false" (onHide)="dialogHide($event)">
     <form [formGroup]="addGameForm" (ngSubmit)="addGame()">
@@ -39,7 +38,7 @@
           </div>
         </div>
       </div>
-      <!--Origin Name-->
+      <!--From series-->
       <div class="form-group mb-3">
         <label class="block text-black-50 !font-bold font-medium mb-2">{{'common.fromSeries' | translate}}</label>
         <input type="text" pInputText formControlName="fromSeries" class="form-control w-full md:w-30rem mb-3">
@@ -93,13 +92,14 @@
         <div class="!grid !grid-cols-2 !auto-cols-max !grid-flow-col gap-2">
           <!--Title pic-->
           <p-panel header="{{'common.titlePicture' | translate}}">
-            <p-fileupload #title mode="basic" chooseLabel="{{'primeng.choose' | translate}}" chooseIcon="pi pi-upload" name="title[]"
-                          class="w-full md:w-30rem mb-3"
+            <p-fileupload #title mode="advanced" chooseLabel="{{'primeng.choose' | translate}}" chooseIcon="pi pi-upload" name="title[]"
+                          class="w-full md:w-30rem mb-3" showUploadButton="false" showCancelButton="false"
                           [customUpload]="true" accept="image/*" maxFileSize="10485760" (onSelect)="onSelectedFile('title', $event)" />
           </p-panel>
           <!--Additional-->
           <p-panel header="{{'common.additionalGameFiles' | translate}}">
-            <p-fileUpload #additional mode="basic" chooseLabel="{{'primeng.choose' | translate}}" chooseIcon="pi pi-upload" name="files[]"
+            <p-fileUpload #additional mode="advanced" chooseLabel="{{'primeng.choose' | translate}}" chooseIcon="pi pi-upload" name="files[]"
+                          showUploadButton="false" showCancelButton="false"
                           [customUpload]="true" accept="application/*" maxFileSize="209715200"
                           (onSelect)="onSelectedFile('additional', $event)" />
           </p-panel>
@@ -110,11 +110,12 @@
         <label class="block text-black-50 !font-bold font-medium mb-2">{{'common.screenshots' | translate}}</label>
         <p-fileUpload #screens name="screens[]"
                       multiple="true"
+                      mode="advanced"
                       accept="image/*"
                       maxFileSize="10485760"
                       fileLimit="3"
-                      [showUploadButton]="false"
-                      [showCancelButton]="false"
+                      showUploadButton="false"
+                      showCancelButton="false"
                       (onSelect)="onSelectedFile('screen', $event)" />
       </div>
 
@@ -123,5 +124,4 @@
         <p-button type="submit" label="{{'common.add' | translate}}" [loading]="loading" />
       </div>
     </form>
-  </p-dialog>
-</div>
+</p-dialog>
