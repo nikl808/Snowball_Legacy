@@ -7,7 +7,7 @@ body {
 .layout-main-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   overflow: hidden;
   justify-content: space-between;
   padding: 6rem 2rem 0 2rem;
@@ -16,31 +16,38 @@ body {
 
 .layout-main {
   flex: 1 1 auto;
-  padding-bottom: 2rem;
+  //padding-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   overflow: hidden;
 }
 
 .layouot-main-background {
-    background-image: url("../../../public/background.png");
-    background-repeat: no-repeat;
-    background-size: initial;
-    overflow:hidden;
+  background-image: url("../../../public/background.png");
+  background-repeat: no-repeat;
+  background-size: initial;
+  overflow: hidden;
 }
 
+.layouot-main-background, .layout-wrapper {
+  height: 100vh;
+  min-height: 100vh;
+}
 
 .layout-main-container-opacity .p-card {
-    color: var(--text-color);
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(4px);
-    border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-shadow: 0 0 1px rgba(0,0,0,0.02);
+  color: var(--text-color);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-shadow: 0 0 1px rgba(0,0,0,0.02);
 }
+
 .layout-main-dashboard {
-  min-height: 100vh;
+  min-height: 100%;
   transition: min-height 0.3s cubic-bezier(0.4,0,0.2,1);
-  overflow: hidden;
-  position: relative;
+  overflow: auto;
 }
