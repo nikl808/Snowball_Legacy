@@ -33,6 +33,9 @@ namespace Snowball_Legacy.Server.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
+                    b.Property<string>("Origin")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.ToTable("Game");
@@ -75,6 +78,9 @@ namespace Snowball_Legacy.Server.Migrations
 
                     b.Property<int?>("DiskNumber")
                         .HasColumnType("integer");
+
+                    b.Property<string>("FromSeries")
+                        .HasColumnType("text");
 
                     b.Property<int>("GameId")
                         .HasColumnType("integer");

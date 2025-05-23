@@ -14,6 +14,7 @@ import { TranslateService } from "@ngx-translate/core";
   templateUrl: './addgame.html',
   standalone: true,
   imports: [ImportsModule],
+  styles: []
 })
 export class AddGame implements OnInit {
   @ViewChild('title') titleChild: FileUpload | undefined;
@@ -53,10 +54,12 @@ export class AddGame implements OnInit {
       });
     this.addGameForm = new FormGroup({
       gameName: new FormControl('', [Validators.required]),
+      originName: new FormControl('', [Validators.required]),
       developer: new FormControl('', [Validators.required]),
       gamedescr: new FormControl('', [Validators.required]),
       releasedate: new FormControl('', [Validators.required]),
       discnum: new FormControl('', [Validators.required]),
+      fromSeries: new FormControl(''),
       selectGenre: new FormControl(this.genres[0], [Validators.required])
     });
   }
@@ -85,10 +88,12 @@ export class AddGame implements OnInit {
     let newGame: GameVM = {
       id: '',
       name: this.addGameForm.value.gameName ?? '',
+      origin: this.addGameForm.value.originName ?? '',
       developer: this.addGameForm.value.developer ?? '',
       genre: this.addGameForm.value.selectGenre,
       releaseDate: this.addGameForm.value.releasedate,
       description: this.addGameForm.value.gamedescr ?? '',
+      fromSeries: this.addGameForm.value.fromSeries ?? '',
       discNumber: this.addGameForm.value.discnum ?? '',
       isAdditionalFiles: this.additionalFiles.length > 0,
       titlePicture: this.titlePic,

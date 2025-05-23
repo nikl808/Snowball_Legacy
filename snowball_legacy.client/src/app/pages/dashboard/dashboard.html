@@ -1,55 +1,77 @@
-<p-card class="!text-lg !font-serif">
-  <ng-template #title>
-    <div class="!font-bold !text-xl !text-center mb-2">
-      <p-skeleton *ngIf="!gameInfo" width="200px" height="30px"/>
-      <span *ngIf="gameInfo">{{gameInfo.name}}</span>
-    </div>
-    <div class="h-[1px] bg-red-500 w-[100%] mb-6"></div>
-  </ng-template>
-  <div class="!flex !justify-center">
-    <table width="950" cellpadding="0" cellspacing="0" border="0">
-      <tr>
-        <td style="width:900px;vertical-align:top">
-          <div class="!grid !grid-rows-5 !gap-3 !auto-cols-max !grid-flow-col mb-6">
-            <div class="!row-span-5">
-              <p-skeleton *ngIf="!titlePicture" width="200px" height="200px" />
-              <p-image *ngIf="titlePicture" [src]="titlePicture" alt="Image" width="200" [preview]="true" />
+      <div class="layout-main-dashboard" *ngIf="gameInfo" [@fadeIn]>
+      <p-card class="!text-lg !antialiased layout-main-container-opacity">
+        <ng-template #title>
+          <div class="!grid !grid-flow-col !justify-items-center">
+            <p-skeleton *ngIf="!gameInfo" width="25px" height="25px" />
+            <p-button class="justify-self-start" pTooltip="Previous game" showDelay="1000" hideDelay="300" *ngIf="gameInfo" icon="pi pi-caret-left"
+                      [style]="{height: '25px', width: '25px'}" (onClick)="prevGame()" [disabled]="firstGame" />
+            <div class="!font-bold !text-xl !text-center !justify-center mb-2">
+              <p-skeleton *ngIf="!gameInfo" width="200px" height="30px" />
+              <span *ngIf="gameInfo">{{gameInfo.name}}</span>
             </div>
-            <div class="!font-bold">
-              {{'common.developer' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
-              <span *ngIf="gameInfo">{{gameInfo.developer}}</span>
-            </div>
-            <div class="!font-bold">
-              {{'common.releaseDate' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
-              <span *ngIf="gameInfo">{{gameInfo.releaseDate}}</span>
-            </div>
-            <div class="!font-bold">
-              {{'common.genre' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
-              <span *ngIf="gameInfo">{{gameInfo.genre}}</span>
-            </div>
-            <div class="!font-bold">
-              {{'common.discNum' | translate}}: <p-skeleton *ngIf="!gameInfo" width="150px" height="20px" />
-              <span *ngIf="gameInfo">{{gameInfo.discNumber}}</span>
-            </div>
-            <div class="!font-bold">
-              {{'common.additionalGameFiles' | translate}}: <p-skeleton *ngIf="!gameInfo" width="25px" height="25px" />
-              <p-button *ngIf="gameInfo" icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" [loading]="fileDownload" />
-            </div>
+            <p-skeleton *ngIf="!gameInfo" width="25px" height="25px" />
+            <p-button class="justify-self-end" pTooltip="Next game" tooltipPosition="left" showDelay="1000" hideDelay="300" *ngIf="gameInfo" icon="pi pi-caret-right"
+                      [style]="{height: '25px', width: '25px'}" (onClick)="nextGame()" [disabled]="lastGame" />
           </div>
-          <div class="!font-bold !text-xl mb-3">{{'common.gameDescription' | translate}}:</div>
-          <p-skeleton *ngIf="!gameInfo" width="100%" height="100px"/>
-          <p *ngIf="gameInfo" class="!text-lg">{{gameInfo.description}}</p>
-          <div class="!font-bold !text-xl !text-center mb-3">{{'common.screenshots' | translate}}:</div>
-          <div class="!flex !flex-row !justify-center !content-center !gap-3">
-            <p-skeleton *ngIf="!screenshots || screenshots.length === 0" width="200px" height="200px"/>
-            <ng-container *ngIf="screenshots && screenshots.length > 0">
-              <ng-container *ngFor="let screen of screenshots">
-                <p-image src="{{'data:image/jpeg;base64,'+ screen}}" alt="Image" width="200" [preview]="true" />
-              </ng-container>
-            </ng-container>
+          <div class="h-[1px] bg-red-500 w-[100%] mb-6"></div>
+        </ng-template>
+        <p-scrollpanel [style]="{width: '100%', height: '750px'}">
+          <div class="!flex !justify-center">
+            <table width="950" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="width:900px;vertical-align:top">
+                  <div class="!grid !grid-rows-7 !gap-3 !auto-cols-max !grid-flow-col mb-6">
+                    <div class="!row-span-7">
+                      <p-skeleton *ngIf="!titlePicture" width="300px" height="300px" />
+                      <p-image *ngIf="titlePicture" [src]="titlePicture" alt="Image" width="270" [preview]="true" />
+                    </div>
+                    <div class="!flex !flex-row">
+                      <span class="!font-bold">{{'common.origin' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+                      <span *ngIf="gameInfo">{{gameInfo.origin}}</span>
+                    </div>
+                    <div class="!flex !flex-row">
+                      <span class="!font-bold">{{'common.developer' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+                      <span *ngIf="gameInfo">{{gameInfo.developer}}</span>
+                    </div>
+                    <div class="!flex !flex-row">
+                      <span class="!font-bold">{{'common.releaseDate' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+                      <span *ngIf="gameInfo">{{gameInfo.releaseDate | date:'dd.MM.yyyy'}}</span>
+                    </div>
+                    <div class="!flex !flex-row">
+                      <span class="!font-bold">{{'common.genre' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+                      <span *ngIf="gameInfo">{{gameInfo.genre}}</span>
+                    </div>
+                    <div *ngIf="gameInfo?.fromSeries != null" class="!flex !flex-row">
+                      <span class="!font-bold">{{'common.fromSeries' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+                      <span *ngIf="gameInfo">{{gameInfo.fromSeries}}</span>
+                    </div>
+                    <div class="!flex !flex-row">
+                      <span class="!font-bold">{{'common.discNum' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="150px" height="20px" /></span>
+                      <span *ngIf="gameInfo">{{gameInfo.discNumber}}</span>
+                    </div>
+                    <div *ngIf="gameInfo?.isAdditionalFiles" class="!flex !flex-row !font-bold">
+                      {{'common.additionalGameFiles' | translate}}:&nbsp;<p-skeleton *ngIf="!gameInfo" width="25px" height="25px" />
+                      <p-button *ngIf="gameInfo" icon="pi pi-download" [style]="{height: '25px', width: '25px'}" (onClick)="getAdditionalFiles()" [loading]="fileDownload" />
+                    </div>
+                  </div>
+                  <div class="!font-bold !text-xl mb-3  !text-center">{{'common.gameDescription' | translate}}:</div>
+                  <div class="h-[1px] bg-red-500 w-[100%] mb-6"></div>
+                  <p-skeleton *ngIf="!gameInfo" width="100%" height="100px" />
+                  <p *ngIf="gameInfo" class="!text-lg">{{gameInfo.description}}</p>
+                  <div class="!font-bold !text-xl !text-center mb-3">{{'common.screenshots' | translate}}:</div>
+                  <div class="h-[1px] bg-red-500 w-[100%] mb-6"></div>
+                  <div class="!flex !flex-row !justify-center !content-center !gap-3">
+                    <p-skeleton *ngIf="!screenshots || screenshots.length === 0" width="200px" height="200px" />
+                    <ng-container *ngIf="screenshots && screenshots.length > 0">
+                      <ng-container *ngFor="let screen of screenshots">
+                        <p-image src="{{'data:image/jpeg;base64,'+ screen}}" alt="Image" width="200" [preview]="true" />
+                      </ng-container>
+                    </ng-container>
+                  </div>
+                </td>
+              </tr>
+            </table>
           </div>
-        </td>
-      </tr>
-    </table>
+        </p-scrollpanel>
+      </p-card>
   </div>
-</p-card>

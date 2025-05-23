@@ -1,3 +1,5 @@
 <div class="layout-sidebar">
-  <app-games-list [items]="games" (itemSelected)="onGameChanged($event)"/>
+  <app-games-list [items]="games"
+                  [selectedGameId]="currentGameId"
+                  (itemSelected)="onGameChanged($event)" />
 </div>

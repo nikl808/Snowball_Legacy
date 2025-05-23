@@ -4,7 +4,9 @@ public class GameInfoDto
 {
     public int Id { get; set; }
     public string? Name { get; set; }
+    public string? Origin { get; set; }
     public string? Developer { get; set; }
+    public string? FromSeries { get; set; }
     public string Genre { get; set; } = string.Empty;
     public DateOnly ReleaseDate { get; set; }
     public int? DiscNumber { get; set; }

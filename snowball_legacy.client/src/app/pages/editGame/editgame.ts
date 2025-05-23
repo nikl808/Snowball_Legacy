@@ -50,10 +50,12 @@ export class EditGame {
       });
     this.editGameForm = new FormGroup({
       gameName: new FormControl('', [Validators.required]),
+      originName: new FormControl('', [Validators.required]),
       developer: new FormControl('', [Validators.required]),
       gamedescr: new FormControl('', [Validators.required]),
       releasedate: new FormControl('', [Validators.required]),
       discnum: new FormControl('', [Validators.required]),
+      fromSeries: new FormControl(''),
       selectGenre: new FormControl('')
     })
   }
@@ -63,12 +65,15 @@ export class EditGame {
       let index = this.genres.findIndex((item: string) => item === info.genre);
       this.editGameForm.setValue({
         gameName: info.name,
+        originName: info.origin,
         developer: info.developer,
         gamedescr: info.description,
+        fromSeries: info.fromSeries,
         releasedate: new Date(info.releaseDate).toLocaleDateString(),
         discnum: info.discNumber,
         selectGenre: this.genres[index]
       });
+
       this.setTitlePicture(info.id);
       this.setAdditionalFiles(this.gameId);
       await this.setScreenshots(info.id);
@@ -85,10 +90,12 @@ export class EditGame {
     let updateGame: GameVM = {
       id: this.gameId,
       name: this.editGameForm.value.gameName ?? '',
+      origin: this.editGameForm.value.originName ?? '',
       developer: this.editGameForm.value.developer ?? '',
       genre: this.editGameForm.value.selectGenre,
       releaseDate: this.editGameForm.value.releasedate,
       description: this.editGameForm.value.gamedescr ?? '',
+      fromSeries: this.editGameForm.value.fromSeries ?? '', 
       discNumber: this.editGameForm.value.discnum ?? '',
       isAdditionalFiles: this.additionalFiles != undefined ? this.additionalFiles?.files.length > 0 : false,
       titlePicture: this.titleFile?.files[0],
@@ -133,7 +140,7 @@ export class EditGame {
       next: blob => {
         var file = new File([blob], "title.jpg", { type: "image/jpeg", lastModified: Date.now() });
         this.titleFile?.clear();
-        this.titleFile?.files.push(file);
+        if (this.titleFile) this.titleFile.files = [file];
       }
     });
   }
@@ -142,7 +149,7 @@ export class EditGame {
     this.apiData.getGameScreenshots(gameInfoId).subscribe({
       next: async screens => {
         const zip = new JSZip();
-        let files = []
+        const files: File[] = [];
         const extractedFiles = await zip.loadAsync(screens);
         for (const key of Object.keys(extractedFiles.files)) {
           const fileData = await extractedFiles.files[key].async('blob');
@@ -158,10 +165,13 @@ export class EditGame {
   private setAdditionalFiles(gameId: string) {
     this.apiData.getAdditionalGameFiles(gameId).subscribe({
       next: zip => {
-        var file = new File([zip], "files.zip", { type: "application/zip", lastModified: Date.now() });
         this.additionalFiles?.clear();
-        this.additionalFiles?.files.push(file);
+        if (zip.size != 0) {
+          var file = new File([zip], "files.zip", { type: "application/zip", lastModified: Date.now() });
+          this.additionalFiles?.files.push(file);
+        }
       }
+      
     });
   }
 }

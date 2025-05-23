@@ -37,8 +37,8 @@ public class GameControllerTests
     {
         // Arrange
         _context.Game.AddRange(
-            new Game { Id = 1, Name = "Game 1" },
-            new Game { Id = 2, Name = "Game 2" }
+            new Game { Id = 1, Name = "Game 1", Origin = "Game 1" },
+            new Game { Id = 2, Name = "Game 2", Origin = "Game 2" }
         );
         await _context.SaveChangesAsync();
 

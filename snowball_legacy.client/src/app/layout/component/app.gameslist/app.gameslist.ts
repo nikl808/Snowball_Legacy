@@ -15,10 +15,12 @@ import { ImportsModule } from "../../../imports";
       }
 
       .listbox-item {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-shadow: 0 0 1px rgba(0,0,0,0.02);
         display: flex;
-        align-items:
-        center; color:
-        var(--text-color);
+        align-items: center;
+        color: var(--text-color);
         position: relative;
         padding: 0.75rem 1rem;
         border-radius: var(--content-border-radius);
@@ -28,11 +30,12 @@ import { ImportsModule } from "../../../imports";
           padding: 10px;
           cursor: pointer;
         }
-        .listbox-item:hover { background-color: var(--surface-hover);}
+        .listbox-item:hover { background-color: var(--surface-hover); color: var(--text-color);}
         .activeitem { font-weight: 700; color: var(--primary-color);}
   `]
 })
 export class AppGamesList {
+  @Input() selectedGameId: string = '';
   @Input() items: Game[] = [];
   @Output() itemSelected: EventEmitter<Game> = new EventEmitter();
   activeGame: number = 0;
