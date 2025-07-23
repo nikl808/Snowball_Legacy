@@ -1,86 +1,104 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Snowball_Legacy.Server.Models.ViewModels;
-using Snowball_Legacy.Server.Services;
+using Snowball_Legacy.Application.DTOs;
+using Snowball_Legacy.Application.Interfaces;
 using Snowball_Legacy.Server.Utils;
 
 namespace Snowball_Legacy.Server.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class GameController(GameDataService gameDataService) : ControllerBase
+public sealed class GameController(IGenericService<GameDto> service, ILogger<GameController> logger) : ApiControllerBase
 {
-    private readonly GameDataService _gameDataService = gameDataService;
-    
+    private readonly IGenericService<GameDto> _service = service;
+    private readonly ILogger<GameController> _logger = logger;
+   
     /// <summary>
     /// Getting a list of games
     /// </summary>
     /// <returns>List of GameDto</returns>
-    [HttpGet("list", Name = "GetListOfGames")]
-    public async Task<IResult> GetListOfGames() =>
-        (await ProcessOperationTimeout(_gameDataService.GetListOfGames(),15)).Match(
-            onSuccess: Results.Ok, onFailure: error => CheckError(error).Item2);
-    
-    /// <summary>
-    /// Getting the game
-    /// </summary>
-    /// <param name="gameId">Game Id</param>
-    /// <returns>GameInfoDto</returns>
-    [HttpGet("info/{gameId}", Name = "GetGameInfo")]
-    public async Task<IResult> GetGameInfo(int gameId) =>
-        (await ProcessOperationTimeout(_gameDataService.GetGameInfo(gameId),15)).Match(
-            onSuccess: Results.Ok,
-            onFailure: error => CheckError(error).Item2);
+    [HttpGet]
+    public async Task<IEnumerable<GameDto>> GetAll(CancellationToken cancellationToken)
+    {
+        using var timeoutCts = TimeoutUtils.CreateTimeoutCts(cancellationToken);
+        _logger.LogInformation("Getting all games");
+        return await _service.GetAllAsync(timeoutCts.Token);
+    }
 
-    /// <summary>
-    /// Add game
-    /// </summary>
-    /// <param name="vm">GameViewModel</param>
-    /// <returns>Ok result or error</returns>
+    [HttpGet("{id}")]
+    public async Task<ActionResult<GameDto>> GetById(int id, CancellationToken cancellationToken)
+    {
+        using var timeoutCts = TimeoutUtils.CreateTimeoutCts(cancellationToken);
+        _logger.LogInformation("Getting game by id: {Id}", id);
+        try
+        {
+            var game = await _service.GetByIdAsync(id, timeoutCts.Token);
+            if (game is null)
+            {
+                _logger.LogWarning("Game not found: {Id}", id);
+                return NotFound();
+            }
+            return Ok(game);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Timeout occurred while getting game by id: {Id}", id);
+            return StatusCode(504, "Operation timed out");
+        }
+       
+    }
+
     [HttpPost]
-    [DisableRequestSizeLimit]
-    public async Task<IResult> AddGame([FromForm] GameViewModel vm) =>
-        (await ProcessOperationTimeout(_gameDataService.AddGame(vm),15)).Match(
-            onSuccess: Results.Ok,
-            onFailure: error => CheckError(error).Item2);
+    public async Task<IActionResult> AddGame([FromForm] GameDto gameDto, CancellationToken cancellationToken)
+    {
+        using var timeoutCts = TimeoutUtils.CreateTimeoutCts(cancellationToken);
+        _logger.LogInformation("Adding new game");
+        try
+        {
+            var game = await _service.AddAsync(gameDto, timeoutCts.Token);
+            return Ok(game);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Timeout occurred while adding game");
+            return StatusCode(504, "Operation timed out");
+        }
+    }
 
-    /// <summary>
-    /// Update game
-    /// </summary>
-    /// <param name="vm">GameViewModel</param>
-    /// <returns>Ok result or error</returns>
     [HttpPut("update")]
-    [DisableRequestSizeLimit]
-    public async Task<IResult> UpdateGame([FromForm] GameViewModel vm) =>
-        (await ProcessOperationTimeout(_gameDataService.UpdateGame(vm), 15)).Match(
-            onSuccess: Results.Ok,
-            onFailure: error => CheckError(error).Item2);
+    public async Task<IActionResult> UpdateGame([FromForm] GameDto gameDto, CancellationToken cancellationToken)
+    {
+        using var timeoutCts = TimeoutUtils.CreateTimeoutCts(cancellationToken);
+        _logger.LogInformation("Updating game with id: {Id}", gameDto.Id);
+        try
+        {
+            await _service.UpdateAsync(gameDto, timeoutCts.Token);
+            return NoContent();
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Timeout occurred while updating game with id: {Id}", gameDto.Id);
+            return StatusCode(504, "Operation timed out");
+        }
+    }
 
     /// <summary>
     /// Delete game
     /// </summary>
-    /// <param name="gameId">GameId</param>
+    /// <param name="id">GameId</param>
+    /// <param name="cancellationToken">cancel token</param>
     /// <returns>Ok result or error</returns>
     [HttpDelete]
-    public async Task<IResult> DeleteGame([FromHeader] int gameId) =>
-        (await ProcessOperationTimeout(_gameDataService.DeleteGame(gameId), 15)).Match(
-            onSuccess: Results.Ok,
-            onFailure: error => CheckError(error).Item2);
-
-    private (ErrorResponse,IResult) CheckError(ErrorResponse error) =>
-        error.ErrorType switch
-        {
-            ErrorType.NotFound => (error, Results.NotFound(error.Error)),
-            ErrorType.Invalid => (error, Results.BadRequest(error.Error)),
-            ErrorType.InternalServerError => (error, Results.StatusCode(500)),
-            _ => (error, Results.Problem(error.Error))
-        };
-
-    private async Task<T> ProcessOperationTimeout<T>(Task<T> task, int timeoutSec)
+    public async Task<IActionResult> Delete([FromHeader] int id, CancellationToken cancellationToken)
     {
-        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSec));
-        var opDelayTask = Task.Delay(Timeout.Infinite, cts.Token);
-        var result = await Task.WhenAny(task, opDelayTask);
-        if (result == opDelayTask) return (T)Results.Problem("operation timeout");
-        return await task;
+        using var timeoutCts = TimeoutUtils.CreateTimeoutCts(cancellationToken);
+        _logger.LogInformation("Deleting game with id: {Id}", id);
+        try
+        {
+            await _service.DeleteAsync(id, timeoutCts.Token);
+            return NoContent();
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Timeout occurred while deleting game with id: {Id}", id);
+            return StatusCode(504, "Operation timed out");
+        }
     }
 }

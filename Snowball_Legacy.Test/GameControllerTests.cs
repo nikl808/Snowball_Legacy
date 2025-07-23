@@ -1,134 +1,112 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Snowball_Legacy.Server.Contexts;
+using Moq;
+using Snowball_Legacy.Application.DTOs;
+using Snowball_Legacy.Application.Interfaces;
 using Snowball_Legacy.Server.Controllers;
-using Snowball_Legacy.Server.Models;
-using Snowball_Legacy.Server.Models.Dtos;
-using Snowball_Legacy.Server.Models.ViewModels;
-using Snowball_Legacy.Server.Services;
+using Xunit;
+using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace Snowball_Legacy.Test;
 
 public class GameControllerTests
 {
-    private readonly DataContext _context;
+    private readonly Mock<IGenericService<GameDto>> _serviceMock;
+    private readonly Mock<ILogger<GameController>> _loggerMock;
     private readonly GameController _controller;
+    private readonly CancellationToken _token = CancellationToken.None;
 
     public GameControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DataContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase")
-            .Options;
-
-        var logger = new LoggerFactory().CreateLogger<GameDataService>();
-        _context = new DataContext(options);
-        
-        _context.Database.EnsureCreated();
-        _context.Database.EnsureDeleted();
-
-        var gameDataService = new GameDataService(_context, logger);
-        _controller = new GameController(gameDataService);
+        _serviceMock = new Mock<IGenericService<GameDto>>();
+        _loggerMock = new Mock<ILogger<GameController>>();
+        _controller = new GameController(_serviceMock.Object, _loggerMock.Object);
     }
 
     [Fact]
-    public async Task GetListOfGames()
+    public async Task GetAll_ReturnsListOfGames()
     {
         // Arrange
-        _context.Game.AddRange(
-            new Game { Id = 1, Name = "Game 1", Origin = "Game 1" },
-            new Game { Id = 2, Name = "Game 2", Origin = "Game 2" }
-        );
-        await _context.SaveChangesAsync();
+        var games = new List<GameDto> { new() { Id = 1, Name = "Game 1" }, new() { Id = 2, Name = "Game 2" } };
+        _serviceMock.Setup(s => s.GetAllAsync(_token)).ReturnsAsync(games);
 
         // Act
-        var result = await _controller.GetListOfGames();
+        var result = await _controller.GetAll(_token);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<GameDto>>>(result);
-        Assert.Equal(2, okResult.Value?.Count);
+        Assert.Equal(2, result.Count());
+        Assert.Contains(result, g => g.Name == "Game 1");
     }
 
     [Fact]
-    public async Task GetGameInfo()
-    {
-        // Act
-        var result = await _controller.GetGameInfo(1);
-
-        // Assert
-        var notFoundResult = Assert.IsType<NotFound<string>>(result);
-        Assert.Equal("Game with Id 1 not found", notFoundResult.Value);
-    }
-
-    [Fact]
-    public async Task AddNewGame()
+    public async Task GetById_ReturnsGame_WhenFound()
     {
         // Arrange
-        var gameViewModel = new GameViewModel
-        {
-            Name = "New Game",
-            Developer = "Developer",
-            Genre = "Genre",
-            ReleaseDate = "21.04.2025",
-            Description = "Description",
-            DiscNumber = 1,
-            IsAdditionalFiles = 0
-        };
+        var game = new GameDto { Id = 1, Name = "Game 1" };
+        _serviceMock.Setup(s => s.GetByIdAsync(1, _token)).ReturnsAsync(game);
 
         // Act
-        var result = await _controller.AddGame(gameViewModel);
+        var result = await _controller.GetById(1, _token);
 
         // Assert
-        var okResult = Assert.IsType<Ok<string>>(result);
-        Assert.Equal("Game successfully uploaded.", okResult.Value);
-
-        // Check that the game was added to the database
-        var gameInDb = await _context.Game.FirstOrDefaultAsync(g => g.Name == "New Game");
-        Assert.NotNull(gameInDb);
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var returnedGame = Assert.IsType<GameDto>(okResult.Value);
+        Assert.Equal(1, returnedGame.Id);
     }
 
     [Fact]
-    public async Task UpdateGame()
+    public async Task GetById_ReturnsNotFound_WhenNotFound()
     {
         // Arrange
-        var gameViewModel = new GameViewModel
-        {
-            Id = 1,
-            Name = "Updated Game",
-            Developer = "Updated Developer",
-            Genre = "Updated Genre",
-            ReleaseDate = "21.04.2025",
-            Description = "Updated Description",
-            DiscNumber = 2,
-            IsAdditionalFiles = 1
-        };
+        _serviceMock.Setup(s => s.GetByIdAsync(1, _token)).ReturnsAsync((GameDto?)null);
 
         // Act
-        var result = await _controller.UpdateGame(gameViewModel);
+        var result = await _controller.GetById(1, _token);
 
         // Assert
-        var notFoundResult = Assert.IsType<NotFound<string>>(result);
-        Assert.Equal("Game with Id 1 not found.", notFoundResult.Value);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
     [Fact]
-    public async Task DeleteGame()
+    public async Task AddGame_ReturnsOkWithGame()
     {
         // Arrange
-        var game = new Game { Id = 1, Name = "Game 1" };
-        _context.Game.Add(game);
-        await _context.SaveChangesAsync();
+        var gameDto = new GameDto { Id = 1, Name = "New Game" };
+        _serviceMock.Setup(s => s.AddAsync(gameDto, _token)).ReturnsAsync(gameDto);
 
         // Act
-        var result = await _controller.DeleteGame(1);
+        var result = await _controller.AddGame(gameDto, _token);
 
         // Assert
-        var okResult = Assert.IsType<Ok<string>>(result);
-        Assert.Equal("Game: 1 is removed", okResult.Value);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnedGame = Assert.IsType<GameDto>(okResult.Value);
+        Assert.Equal("New Game", returnedGame.Name);
+    }
 
-        // Check that the game was deleted from the database
-        var gameInDb = await _context.Game.FindAsync(1);
-        Assert.Null(gameInDb);
+    [Fact]
+    public async Task UpdateGame_ReturnsNoContent()
+    {
+        // Arrange
+        var gameDto = new GameDto { Id = 1, Name = "Updated Game" };
+        _serviceMock.Setup(s => s.UpdateAsync(gameDto, _token)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.UpdateGame(gameDto, _token);
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
+    }
+
+    [Fact]
+    public async Task Delete_ReturnsNoContent()
+    {
+        // Arrange
+        _serviceMock.Setup(s => s.DeleteAsync(1, _token)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.Delete(1, _token);
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
     }
 }

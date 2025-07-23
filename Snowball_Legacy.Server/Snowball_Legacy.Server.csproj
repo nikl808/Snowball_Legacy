@@ -16,7 +16,8 @@
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>8.*-*</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -26,13 +27,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Snowball_Legacy.Application\Snowball_Legacy.Application.csproj" />
     <ProjectReference Include="..\snowball_legacy.client\snowball_legacy.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\Snowball_Legacy.Domain\Snowball_Legacy.Domain.csproj" />
+    <ProjectReference Include="..\Snowball_Legacy.Infrastructure\Snowball_Legacy.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <Folder Include="Logs\" />
   </ItemGroup>
 
 </Project>
